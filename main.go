@@ -4,28 +4,27 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/donutmonger/2048/board"
 )
 
 func main() {
-	board := NewEmptyBoard()
-	board[0][3] = 2
-	board[0][1] = 2
-	board[0][0] = 2048
+	gameBoard := board.NewEmptyBoard()
+	gameBoard[0][3] = 2
+	gameBoard[0][1] = 2
 
 	scanner := bufio.NewScanner(os.Stdin)
 	var text string
 	for text != "q" { // break the loop if text == "q"
 		fmt.Println("")
-		fmt.Println(BoardToString(board))
+		fmt.Println(board.BoardToString(gameBoard))
 		fmt.Println("")
 
 		fmt.Print("Enter your move: ")
 		scanner.Scan()
 		text = scanner.Text()
-		if text != "q" {
-			if text == "r" {
-				board = MoveRight(board)
-			}
+		if text == "r" {
+			gameBoard = board.MoveRight(gameBoard)
 		}
 	}
 
