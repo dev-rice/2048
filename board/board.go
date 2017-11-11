@@ -17,22 +17,25 @@ func NewEmptyBoard() [][]int64 {
 }
 
 // No tests for this OH GODDDD!
-func PlaceRandomTwo(board[][]int64) [][]int64 {
-	size := len(board)
-	x := rand.Intn(size)
-	y := rand.Intn(size)
-
+func PlaceRandomTile(board[][]int64) [][]int64 {
 	if BoardIsFull(board) {
 		return board
 	}
 
-	if board[x][y] == 0 {
-		board[x][y] = 2
-		return board
-	} else {
-		return PlaceRandomTwo(board)
+	tileNumber := int64(2)
+	if rand.Intn(10) == 0 {
+		tileNumber = 4
 	}
 
+	for {
+		size := len(board)
+		x := rand.Intn(size)
+		y := rand.Intn(size)
+		if board[x][y] == 0 {
+			board[x][y] = tileNumber
+			return board
+		}
+	}
 }
 
 func AreMovesLeft(board [][]int64) bool {

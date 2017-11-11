@@ -9,8 +9,8 @@ import (
 
 func main() {
 	gameBoard := board.NewEmptyBoard()
-	board.PlaceRandomTwo(gameBoard)
-	board.PlaceRandomTwo(gameBoard)
+	board.PlaceRandomTile(gameBoard)
+	board.PlaceRandomTile(gameBoard)
 
 	didMove := false
 	didQuit := false
@@ -18,7 +18,7 @@ func main() {
 		clearScreen()
 
 		if didMove {
-			gameBoard = board.PlaceRandomTwo(gameBoard)
+			gameBoard = board.PlaceRandomTile(gameBoard)
 			didMove = false
 		}
 		fmt.Println(board.BoardToString(gameBoard) + "\n")
