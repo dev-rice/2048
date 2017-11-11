@@ -110,19 +110,37 @@ func TestMoveRightTwoTwos(t *testing.T) {
 	assert.Equal(t, expectedBoard, MoveRight(initialBoard))
 }
 
+func TestMoveRightFourTwos(t *testing.T) {
+	initialBoard := [][]int64{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{2, 2, 2, 2},
+	}
+
+	expectedBoard := [][]int64{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 4, 4},
+	}
+
+	assert.Equal(t, expectedBoard, MoveRight(initialBoard))
+}
+
 func TestMoveRightMultipleRows(t *testing.T) {
 	initialBoard := [][]int64{
 		{2, 128, 0, 0},
 		{4, 0, 0, 4},
 		{2, 0, 8, 8},
-		{2, 2, 0, 16},
+		{2, 2, 2, 32},
 	}
 
 	expectedBoard := [][]int64{
 		{0, 0, 2, 128},
 		{0, 0, 0, 8},
 		{0, 0, 2, 16},
-		{0, 0, 4, 16},
+		{0, 2, 4, 32},
 	}
 
 	assert.Equal(t, expectedBoard, MoveRight(initialBoard))
