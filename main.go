@@ -28,7 +28,7 @@ func main() {
 			break
 		}
 
-		fmt.Print("Enter your move (w,a,s,d) ")
+		fmt.Print("Enter move (w,a,s,d)")
 		char, _, err := keyboard.GetSingleKey()
 		if err != nil {
 			panic(err)

@@ -3,8 +3,11 @@ package board
 import (
 	"container/list"
 	"fmt"
-	"strings"
+	"math"
 	"math/rand"
+	"strings"
+
+	"github.com/fatih/color"
 )
 
 func NewEmptyBoard() [][]int64 {
@@ -17,8 +20,8 @@ func NewEmptyBoard() [][]int64 {
 }
 
 // No tests for this OH GODDDD!
-func PlaceRandomTile(board[][]int64) [][]int64 {
-	if BoardIsFull(board) {
+func PlaceRandomTile(board [][]int64) [][]int64 {
+	if boardIsFull(board) {
 		return board
 	}
 
@@ -36,6 +39,20 @@ func PlaceRandomTile(board[][]int64) [][]int64 {
 			return board
 		}
 	}
+}
+
+func boardIsFull(board [][]int64) bool {
+	width := len(board)
+	height := width
+
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			if board[x][y] == 0 {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func AreMovesLeft(board [][]int64) bool {
@@ -76,20 +93,6 @@ func AreMovesLeft(board [][]int64) bool {
 	return false
 }
 
-func BoardIsFull(board [][]int64) bool {
-	width := len(board)
-	height := width
-
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
-			if board[x][y] == 0 {
-				return false
-			}
-		}
-	}
-	return true
-}
-
 func BoardToString(board [][]int64) string {
 	longestNumDigits := 0
 	for _, row := range board {
@@ -111,8 +114,10 @@ func BoardToString(board [][]int64) string {
 			if val == 0 {
 				output += fmt.Sprintf(" %s |", strings.Repeat(" ", longestNumDigits))
 			} else {
-				formatString := fmt.Sprintf(" %%%dv |", longestNumDigits)
-				output += fmt.Sprintf(formatString, val)
+				c := color.New(colorForNumber(val))
+				formatString := fmt.Sprintf(" %%%dv", longestNumDigits)
+				output += c.Sprintf(formatString, val)
+				output += " |"
 			}
 		}
 		output += "\n"
@@ -120,6 +125,17 @@ func BoardToString(board [][]int64) string {
 	output += strings.Repeat("-", lineLength)
 
 	return output
+}
+
+func colorForNumber(n int64) color.Attribute {
+	exp := int(math.Log2(float64(n)))
+	exp = exp % 16
+
+	if exp <= 8 {
+		return color.Attribute(exp + int(color.FgBlack) + 1)
+	} else {
+		return color.Attribute(exp - 8 + int(color.FgHiBlack) + 1)
+	}
 }
 
 func MoveRight(board [][]int64) [][]int64 {

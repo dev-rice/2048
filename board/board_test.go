@@ -475,7 +475,7 @@ func TestBoardIsFullReturnsFalseForEmptyBoard(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	assert.False(t, BoardIsFull(board))
+	assert.False(t, boardIsFull(board))
 }
 
 func TestBoardIsFullReturnsTrueForFullBoard(t *testing.T) {
@@ -486,7 +486,7 @@ func TestBoardIsFullReturnsTrueForFullBoard(t *testing.T) {
 		{2, 2, 2, 2},
 	}
 
-	assert.True(t, BoardIsFull(board))
+	assert.True(t, boardIsFull(board))
 }
 
 func TestBoardIsFullReturnsFalseForHalfFullBoard(t *testing.T) {
@@ -497,7 +497,7 @@ func TestBoardIsFullReturnsFalseForHalfFullBoard(t *testing.T) {
 		{0, 0, 0, 2},
 	}
 
-	assert.False(t, BoardIsFull(board))
+	assert.False(t, boardIsFull(board))
 }
 
 func TestAreMovesLeftReturnsTrueForEmptyBoard(t *testing.T) {
