@@ -2,15 +2,10 @@ package board
 
 import (
 	"container/list"
-	"fmt"
-	"math"
 	"math/rand"
-	"strings"
 
 	"errors"
 	"reflect"
-
-	"github.com/fatih/color"
 )
 
 func NewEmptyBoard() [][]int64 {
@@ -94,51 +89,6 @@ func AreMovesLeft(board [][]int64) bool {
 	}
 
 	return false
-}
-
-func BoardToString(board [][]int64) string {
-	longestNumDigits := 0
-	for _, row := range board {
-		for _, val := range row {
-			length := len(fmt.Sprintf("%v", val))
-			if length > longestNumDigits {
-				longestNumDigits = length
-			}
-		}
-	}
-
-	output := ""
-
-	lineLength := len(board[0])*(longestNumDigits+2) + len(board[0]) + 1
-	for _, row := range board {
-		output += strings.Repeat("-", lineLength)
-		output += "\n|"
-		for _, val := range row {
-			if val == 0 {
-				output += fmt.Sprintf(" %s |", strings.Repeat(" ", longestNumDigits))
-			} else {
-				c := color.New(colorForNumber(val))
-				formatString := fmt.Sprintf(" %%%dv", longestNumDigits)
-				output += c.Sprintf(formatString, val)
-				output += " |"
-			}
-		}
-		output += "\n"
-	}
-	output += strings.Repeat("-", lineLength)
-
-	return output
-}
-
-func colorForNumber(n int64) color.Attribute {
-	exp := int(math.Log2(float64(n)))
-	exp = exp % 16
-
-	if exp <= 8 {
-		return color.Attribute(exp + int(color.FgBlack) + 1)
-	} else {
-		return color.Attribute(exp - 8 + int(color.FgHiBlack) + 1)
-	}
 }
 
 func MoveRight(board [][]int64) ([][]int64, error) {

@@ -25,7 +25,7 @@ func main() {
 			gameBoard = board.PlaceRandomTile(gameBoard)
 			didMove = false
 		}
-		fmt.Println(board.BoardToString(gameBoard) + "\n")
+		fmt.Println(board.NewStringer(gameBoard).String() + "\n")
 
 		if !board.AreMovesLeft(gameBoard) {
 			fmt.Println("There are no moves left, you lose!")

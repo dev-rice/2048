@@ -17,52 +17,6 @@ func TestNewEmptyBoardReturns4x4OfZeros(t *testing.T) {
 	assert.Equal(t, expectedBoard, NewEmptyBoard())
 }
 
-func TestBoardToStringEmpty(t *testing.T) {
-	expected :=
-		`-----------------
-|   |   |   |   |
------------------
-|   |   |   |   |
------------------
-|   |   |   |   |
------------------
-|   |   |   |   |
------------------`
-
-	board := [][]int64{
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-	}
-	actual := BoardToString(board)
-
-	assert.Equal(t, expected, actual)
-}
-
-func TestBoardToString(t *testing.T) {
-	expected :=
-		`-------------------------
-|     |     |     |   2 |
--------------------------
-|     |     |   8 |   4 |
--------------------------
-|     |  16 |  16 |  32 |
--------------------------
-|     |  16 |  32 | 128 |
--------------------------`
-
-	board := [][]int64{
-		{0, 0, 0, 2},
-		{0, 0, 8, 4},
-		{0, 16, 16, 32},
-		{0, 16, 32, 128},
-	}
-	actual := BoardToString(board)
-
-	assert.Equal(t, expected, actual)
-}
-
 func TestMoveRightWithEmptyReturnsEmptyAndError(t *testing.T) {
 	initialBoard := [][]int64{
 		{0, 0, 0, 0},
