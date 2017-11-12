@@ -3,14 +3,18 @@ package main
 import (
 	"fmt"
 
+	"bufio"
+	"os"
+
 	"github.com/donutmonger/2048/board"
-	"github.com/eiannone/keyboard"
 )
 
 func main() {
 	gameBoard := board.NewEmptyBoard()
 	board.PlaceRandomTile(gameBoard)
 	board.PlaceRandomTile(gameBoard)
+
+	scanner := bufio.NewScanner(os.Stdin)
 
 	didMove := false
 	didQuit := false
@@ -24,34 +28,30 @@ func main() {
 		fmt.Println(board.BoardToString(gameBoard) + "\n")
 
 		if !board.AreMovesLeft(gameBoard) {
-			fmt.Println("You lose, no moves left")
+			fmt.Println("There are no moves left, you lose!")
 			break
 		}
 
-		fmt.Print("Enter move (w,a,s,d)")
-		char, _, err := keyboard.GetSingleKey()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("%q\n", char)
-		switch char {
-		case 'd':
+		fmt.Print("Enter move (w,a,s,d): ")
+		scanner.Scan()
+		switch scanner.Text() {
+		case "d":
 			gameBoard = board.MoveRight(gameBoard)
 			didMove = true
 			break
-		case 'a':
+		case "a":
 			gameBoard = board.MoveLeft(gameBoard)
 			didMove = true
 			break
-		case 's':
+		case "s":
 			gameBoard = board.MoveDown(gameBoard)
 			didMove = true
 			break
-		case 'w':
+		case "w":
 			gameBoard = board.MoveUp(gameBoard)
 			didMove = true
 			break
-		case 'q':
+		case "q":
 			fmt.Println("Exiting game")
 			didQuit = true
 			break
