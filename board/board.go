@@ -7,6 +7,9 @@ import (
 	"math/rand"
 	"strings"
 
+	"errors"
+	"reflect"
+
 	"github.com/fatih/color"
 )
 
@@ -138,21 +141,38 @@ func colorForNumber(n int64) color.Attribute {
 	}
 }
 
-func MoveRight(board [][]int64) [][]int64 {
+func MoveRight(board [][]int64) ([][]int64, error) {
+	outputBoard := make([][]int64, len(board))
 	for y := 0; y < len(board); y++ {
-		board[y] = moveRowRight(board[y])
+		outputBoard[y] = moveRowRight(board[y])
 	}
-	return board
+
+	if reflect.DeepEqual(board, outputBoard) {
+		return outputBoard, errors.New("No move was made")
+	}
+
+	return outputBoard, nil
 }
 
-func MoveLeft(board [][]int64) [][]int64 {
+func MoveLeft(board [][]int64) ([][]int64, error) {
+	outputBoard := make([][]int64, len(board))
 	for y := 0; y < len(board); y++ {
-		board[y] = moveRowLeft(board[y])
+		outputBoard[y] = moveRowLeft(board[y])
 	}
-	return board
+
+	if reflect.DeepEqual(board, outputBoard) {
+		return outputBoard, errors.New("No move was made")
+	}
+
+	return outputBoard, nil
 }
 
-func MoveDown(board [][]int64) [][]int64 {
+func MoveDown(board [][]int64) ([][]int64, error) {
+	outputBoard := make([][]int64, len(board))
+	for y := 0; y < len(board); y++ {
+		outputBoard[y] = make([]int64, len(board))
+	}
+
 	for x := 0; x < len(board[0]); x++ {
 		col := make([]int64, 0)
 		for y := 0; y < len(board); y++ {
@@ -160,13 +180,23 @@ func MoveDown(board [][]int64) [][]int64 {
 		}
 		col = moveRowRight(col)
 		for y := 0; y < len(board); y++ {
-			board[y][x] = col[y]
+			outputBoard[y][x] = col[y]
 		}
 	}
-	return board
+
+	if reflect.DeepEqual(board, outputBoard) {
+		return outputBoard, errors.New("No move was made")
+	}
+
+	return outputBoard, nil
 }
 
-func MoveUp(board [][]int64) [][]int64 {
+func MoveUp(board [][]int64) ([][]int64, error) {
+	outputBoard := make([][]int64, len(board))
+	for y := 0; y < len(board); y++ {
+		outputBoard[y] = make([]int64, len(board))
+	}
+
 	for x := 0; x < len(board[0]); x++ {
 		col := make([]int64, 0)
 		for y := 0; y < len(board); y++ {
@@ -174,10 +204,15 @@ func MoveUp(board [][]int64) [][]int64 {
 		}
 		col = moveRowLeft(col)
 		for y := 0; y < len(board); y++ {
-			board[y][x] = col[y]
+			outputBoard[y][x] = col[y]
 		}
 	}
-	return board
+
+	if reflect.DeepEqual(board, outputBoard) {
+		return outputBoard, errors.New("No move was made")
+	}
+
+	return outputBoard, nil
 }
 
 func moveRowRight(row []int64) []int64 {

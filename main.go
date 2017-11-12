@@ -33,23 +33,32 @@ func main() {
 		}
 
 		fmt.Print("Enter move (w,a,s,d): ")
+		var err error
 		scanner.Scan()
 		switch scanner.Text() {
 		case "d":
-			gameBoard = board.MoveRight(gameBoard)
-			didMove = true
+			gameBoard, err = board.MoveRight(gameBoard)
+			if err == nil {
+				didMove = true
+			}
 			break
 		case "a":
-			gameBoard = board.MoveLeft(gameBoard)
-			didMove = true
+			gameBoard, err = board.MoveLeft(gameBoard)
+			if err == nil {
+				didMove = true
+			}
 			break
 		case "s":
-			gameBoard = board.MoveDown(gameBoard)
-			didMove = true
+			gameBoard, err = board.MoveDown(gameBoard)
+			if err == nil {
+				didMove = true
+			}
 			break
 		case "w":
-			gameBoard = board.MoveUp(gameBoard)
-			didMove = true
+			gameBoard, err = board.MoveUp(gameBoard)
+			if err == nil {
+				didMove = true
+			}
 			break
 		case "q":
 			fmt.Println("Exiting game")
