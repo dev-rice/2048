@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestStringerStringForEmpty(t *testing.T) {
+func TestStringForEmptyBoard(t *testing.T) {
 	expected :=
 		`-----------------
 |   |   |   |   |
@@ -29,7 +29,7 @@ func TestStringerStringForEmpty(t *testing.T) {
 	assert.Equal(t, expected, s.String())
 }
 
-func TestStringerStringForPopulatedBoard(t *testing.T) {
+func TestStringForPopulatedBoard(t *testing.T) {
 	expected :=
 		`-------------------------
 |     |     |     |   2 |

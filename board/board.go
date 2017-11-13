@@ -6,6 +6,8 @@ import (
 
 	"errors"
 	"reflect"
+
+	"github.com/donutmonger/2048/game"
 )
 
 func NewEmptyBoard() [][]int64 {
@@ -91,10 +93,10 @@ func AreMovesLeft(board [][]int64) bool {
 	return false
 }
 
-func MoveRight(board [][]int64) ([][]int64, error) {
+func MoveRight(board [][]int64, score *game.Score) ([][]int64, error) {
 	outputBoard := make([][]int64, len(board))
 	for y := 0; y < len(board); y++ {
-		outputBoard[y] = moveRowRight(board[y])
+		outputBoard[y] = moveRowRight(board[y], score)
 	}
 
 	if reflect.DeepEqual(board, outputBoard) {
@@ -104,10 +106,10 @@ func MoveRight(board [][]int64) ([][]int64, error) {
 	return outputBoard, nil
 }
 
-func MoveLeft(board [][]int64) ([][]int64, error) {
+func MoveLeft(board [][]int64, score *game.Score) ([][]int64, error) {
 	outputBoard := make([][]int64, len(board))
 	for y := 0; y < len(board); y++ {
-		outputBoard[y] = moveRowLeft(board[y])
+		outputBoard[y] = moveRowLeft(board[y], score)
 	}
 
 	if reflect.DeepEqual(board, outputBoard) {
@@ -117,7 +119,7 @@ func MoveLeft(board [][]int64) ([][]int64, error) {
 	return outputBoard, nil
 }
 
-func MoveDown(board [][]int64) ([][]int64, error) {
+func MoveDown(board [][]int64, score *game.Score) ([][]int64, error) {
 	outputBoard := make([][]int64, len(board))
 	for y := 0; y < len(board); y++ {
 		outputBoard[y] = make([]int64, len(board))
@@ -128,7 +130,7 @@ func MoveDown(board [][]int64) ([][]int64, error) {
 		for y := 0; y < len(board); y++ {
 			col = append(col, board[y][x])
 		}
-		col = moveRowRight(col)
+		col = moveRowRight(col, score)
 		for y := 0; y < len(board); y++ {
 			outputBoard[y][x] = col[y]
 		}
@@ -141,7 +143,7 @@ func MoveDown(board [][]int64) ([][]int64, error) {
 	return outputBoard, nil
 }
 
-func MoveUp(board [][]int64) ([][]int64, error) {
+func MoveUp(board [][]int64, score *game.Score) ([][]int64, error) {
 	outputBoard := make([][]int64, len(board))
 	for y := 0; y < len(board); y++ {
 		outputBoard[y] = make([]int64, len(board))
@@ -152,7 +154,7 @@ func MoveUp(board [][]int64) ([][]int64, error) {
 		for y := 0; y < len(board); y++ {
 			col = append(col, board[y][x])
 		}
-		col = moveRowLeft(col)
+		col = moveRowLeft(col, score)
 		for y := 0; y < len(board); y++ {
 			outputBoard[y][x] = col[y]
 		}
@@ -165,7 +167,7 @@ func MoveUp(board [][]int64) ([][]int64, error) {
 	return outputBoard, nil
 }
 
-func moveRowRight(row []int64) []int64 {
+func moveRowRight(row []int64, score *game.Score) []int64 {
 	rowList := sliceToList(row)
 
 	// Remove all zeros and put them at the front
@@ -193,6 +195,9 @@ func moveRowRight(row []int64) []int64 {
 
 			// current becomes prevPrev
 			current = prevPrev
+
+			// add to score
+			score.Add(prev.Value.(int64))
 		} else {
 			current = prev
 		}
@@ -212,7 +217,7 @@ func moveRowRight(row []int64) []int64 {
 	return listToSlice(rowList)
 }
 
-func moveRowLeft(row []int64) []int64 {
+func moveRowLeft(row []int64, score *game.Score) []int64 {
 	rowList := sliceToList(row)
 
 	// Remove all zeros and put them at the back
@@ -240,6 +245,9 @@ func moveRowLeft(row []int64) []int64 {
 
 			// current becomes nextNext
 			current = nextNext
+
+			// add to score
+			score.Add(next.Value.(int64))
 		} else {
 			current = next
 		}
