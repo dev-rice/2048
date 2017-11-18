@@ -10,6 +10,7 @@ import (
 	"github.com/donutmonger/2048/game"
 )
 
+// Add a test color board (whenever cli is a thing)
 func main() {
 	gameBoard := board.NewEmptyBoard()
 	board.PlaceRandomTile(gameBoard)
@@ -27,16 +28,17 @@ func main() {
 			didMove = false
 		}
 
-		if !board.AreMovesLeft(gameBoard) {
+		clearScreen()
+		fmt.Printf("Score: %v\n", score.Get())
+		fmt.Println(board.NewStringer(gameBoard).String() + "\n")
+
+		if board.AreMovesLeft(gameBoard) {
+			fmt.Print("Enter move (w,a,s,d): ")
+		} else {
 			fmt.Println("There are no moves left, you lose!")
 			break
 		}
 
-		clearScreen()
-		fmt.Println(board.NewStringer(gameBoard).String() + "\n")
-
-		fmt.Printf("Score: %v\n", score.Get())
-		fmt.Print("Enter move (w,a,s,d): ")
 		var err error
 		scanner.Scan()
 		switch scanner.Text() {

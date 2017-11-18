@@ -3,8 +3,9 @@ package board
 import (
 	"fmt"
 	"strings"
+
+	"github.com/donutmonger/2048/board/tile"
 	"github.com/fatih/color"
-	"math"
 )
 
 type Stringer struct {
@@ -12,7 +13,7 @@ type Stringer struct {
 }
 
 func NewStringer(board [][]int64) *Stringer {
-	return &Stringer {
+	return &Stringer{
 		board: board,
 	}
 }
@@ -38,7 +39,7 @@ func (s Stringer) String() string {
 			if val == 0 {
 				output += fmt.Sprintf(" %s |", strings.Repeat(" ", longestNumDigits))
 			} else {
-				c := color.New(colorForNumber(val))
+				c := color.New(tile.ColorForNumber(val))
 				formatString := fmt.Sprintf(" %%%dv", longestNumDigits)
 				output += c.Sprintf(formatString, val)
 				output += " |"
@@ -49,15 +50,4 @@ func (s Stringer) String() string {
 	output += strings.Repeat("-", lineLength)
 
 	return output
-}
-
-func colorForNumber(n int64) color.Attribute {
-	exp := int(math.Log2(float64(n)))
-	exp = exp % 16
-
-	if exp <= 8 {
-		return color.Attribute(exp + int(color.FgBlack) + 1)
-	} else {
-		return color.Attribute(exp - 8 + int(color.FgHiBlack) + 1)
-	}
 }
