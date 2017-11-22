@@ -1,4 +1,4 @@
-package game
+package stats
 
 type Score struct {
 	score int64
