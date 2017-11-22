@@ -1,13 +1,14 @@
 package game
 
 import (
-	"bufio"
 	"fmt"
+
+	"bufio"
 	"os"
 
-	"errors"
-
+	"github.com/donutmonger/2048/actions"
 	"github.com/donutmonger/2048/board"
+	"github.com/donutmonger/2048/players"
 	"github.com/donutmonger/2048/stats"
 )
 
@@ -24,7 +25,7 @@ func (g Game) Play() {
 	board.PlaceRandomTile(gameBoard)
 
 	score := stats.NewScore()
-	player := newHumanPlayer()
+	player := players.NewHumanPlayer(bufio.NewScanner(os.Stdin))
 
 	didMove := false
 	for {
@@ -38,49 +39,34 @@ func (g Game) Play() {
 		fmt.Println(board.NewStringer(gameBoard).String() + "\n")
 
 		if board.AreMovesLeft(gameBoard) {
-			fmt.Print("Enter move (w,a,s,d): ")
+			action := player.GetAction()
+
 			var err error
-			gameBoard, err = player.makeMove(gameBoard, score)
+			switch action {
+			case actions.MoveUp:
+				gameBoard, err = board.MoveUp(gameBoard, score)
+				break
+			case actions.MoveDown:
+				gameBoard, err = board.MoveDown(gameBoard, score)
+				break
+			case actions.MoveLeft:
+				gameBoard, err = board.MoveLeft(gameBoard, score)
+				break
+			case actions.MoveRight:
+				gameBoard, err = board.MoveRight(gameBoard, score)
+				break
+			case actions.Quit:
+				fmt.Println("Quitting...")
+				return
+			}
 			if err == nil {
 				didMove = true
-			} else {
-				fmt.Println(err)
 			}
 		} else {
 			fmt.Println("There are no moves left, you lose!")
 			break
 		}
 	}
-}
-
-type humanPlayer struct {
-	scanner *bufio.Scanner
-}
-
-func newHumanPlayer() *humanPlayer {
-	return &humanPlayer{
-		scanner: bufio.NewScanner(os.Stdin),
-	}
-}
-
-func (h humanPlayer) makeMove(gameBoard [][]int64, score *stats.Score) ([][]int64, error) {
-	h.scanner.Scan()
-	switch h.scanner.Text() {
-	case "d":
-		return board.MoveRight(gameBoard, score)
-		break
-	case "a":
-		return board.MoveLeft(gameBoard, score)
-		break
-	case "s":
-		return board.MoveDown(gameBoard, score)
-		break
-	case "w":
-		return board.MoveUp(gameBoard, score)
-		break
-	}
-	return gameBoard, errors.New("Unknown move try w, a, s, or d")
-
 }
 
 func clearScreen() {
