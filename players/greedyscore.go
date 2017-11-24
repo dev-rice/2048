@@ -58,5 +58,5 @@ func (g GreedyScorePlayer) GetAction(gameBoard [][]int64) actions.Action {
 		return actions.MoveRight
 	}
 
-	return actions.MoveRight
+	return actions.MoveDown
 }

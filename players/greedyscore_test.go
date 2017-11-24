@@ -54,3 +54,27 @@ func TestGetActionPrioritizesHigherPairsMore(t *testing.T) {
 	p := NewGreedyScorePlayer()
 	assert.Equal(t, actions.MoveUp, p.GetAction(b))
 }
+
+func TestGetActionCanMoveDown(t *testing.T) {
+	b := [][]int64{
+		{4, 8, 4, 8},
+		{8, 4, 8, 4},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	}
+
+	p := NewGreedyScorePlayer()
+	assert.Equal(t, actions.MoveDown, p.GetAction(b))
+}
+
+func TestGetActionCanMoveRight(t *testing.T) {
+	b := [][]int64{
+		{4, 8, 0, 0},
+		{8, 4, 0, 0},
+		{4, 8, 0, 0},
+		{8, 4, 0, 0},
+	}
+
+	p := NewGreedyScorePlayer()
+	assert.Equal(t, actions.MoveRight, p.GetAction(b))
+}
