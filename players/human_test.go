@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/donutmonger/2048/actions"
+	"github.com/donutmonger/2048/board"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,7 +26,7 @@ func TestGetActionPressWReturnsMoveUp(t *testing.T) {
 	}
 	h := NewHumanPlayer(m)
 
-	assert.Equal(t, actions.MoveUp, h.GetAction())
+	assert.Equal(t, actions.MoveUp, h.GetAction(board.NewEmptyBoard()))
 }
 
 func TestGetActionPressAReturnsMoveLeft(t *testing.T) {
@@ -34,7 +35,7 @@ func TestGetActionPressAReturnsMoveLeft(t *testing.T) {
 	}
 	h := NewHumanPlayer(m)
 
-	assert.Equal(t, actions.MoveLeft, h.GetAction())
+	assert.Equal(t, actions.MoveLeft, h.GetAction(board.NewEmptyBoard()))
 }
 
 func TestGetActionWithSReturnsMoveDown(t *testing.T) {
@@ -43,7 +44,7 @@ func TestGetActionWithSReturnsMoveDown(t *testing.T) {
 	}
 	h := NewHumanPlayer(m)
 
-	assert.Equal(t, actions.MoveDown, h.GetAction())
+	assert.Equal(t, actions.MoveDown, h.GetAction(board.NewEmptyBoard()))
 }
 
 func TestGetActionWithDReturnsMoveRight(t *testing.T) {
@@ -52,7 +53,7 @@ func TestGetActionWithDReturnsMoveRight(t *testing.T) {
 	}
 	h := NewHumanPlayer(m)
 
-	assert.Equal(t, actions.MoveRight, h.GetAction())
+	assert.Equal(t, actions.MoveRight, h.GetAction(board.NewEmptyBoard()))
 }
 
 func TestGetActionWithQReturnsQuit(t *testing.T) {
@@ -61,7 +62,7 @@ func TestGetActionWithQReturnsQuit(t *testing.T) {
 	}
 	h := NewHumanPlayer(m)
 
-	assert.Equal(t, actions.Quit, h.GetAction())
+	assert.Equal(t, actions.Quit, h.GetAction(board.NewEmptyBoard()))
 }
 
 func TestGetActionWithLReturnsNone(t *testing.T) {
@@ -70,5 +71,5 @@ func TestGetActionWithLReturnsNone(t *testing.T) {
 	}
 	h := NewHumanPlayer(m)
 
-	assert.Equal(t, actions.None, h.GetAction())
+	assert.Equal(t, actions.None, h.GetAction(board.NewEmptyBoard()))
 }

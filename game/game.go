@@ -3,9 +3,6 @@ package game
 import (
 	"fmt"
 
-	"bufio"
-	"os"
-
 	"github.com/donutmonger/2048/actions"
 	"github.com/donutmonger/2048/board"
 	"github.com/donutmonger/2048/players"
@@ -19,14 +16,12 @@ func New() Game {
 	return Game{}
 }
 
-func (g Game) Play() {
+func (g Game) Play(player players.Player) {
 	gameBoard := board.NewEmptyBoard()
 	board.PlaceRandomTile(gameBoard)
 	board.PlaceRandomTile(gameBoard)
 
 	score := stats.NewScore()
-	player := players.NewHumanPlayer(bufio.NewScanner(os.Stdin))
-
 	didMove := false
 	for {
 		if didMove {
@@ -39,7 +34,7 @@ func (g Game) Play() {
 		fmt.Println(board.NewStringer(gameBoard).String() + "\n")
 
 		if board.AreMovesLeft(gameBoard) {
-			action := player.GetAction()
+			action := player.GetAction(gameBoard)
 
 			var err error
 			switch action {

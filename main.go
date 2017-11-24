@@ -3,8 +3,11 @@ package main
 import (
 	"os"
 
-	"github.com/donutmonger/2048/ai"
+	"bufio"
+
 	"github.com/donutmonger/2048/game"
+	"github.com/donutmonger/2048/players"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )
 
@@ -13,11 +16,28 @@ func main() {
 	app := cli.NewApp()
 	app.Commands = []cli.Command{
 		{
-			Name:   "ai",
-			Action: ai.Play,
+			Name: "ai",
+			Action: func(ctx *cli.Context) error {
+				g := game.New()
+
+				aiType := ctx.String("type")
+
+				var player players.Player
+				if aiType == "greedyscore" {
+					player = players.NewGreedyScorePlayer()
+				} else if aiType == "random" {
+					player = players.NewRandomPlayer()
+				} else {
+					return errors.Errorf("Unknown ai player type '%s'", aiType)
+				}
+
+				g.Play(player)
+				return nil
+			},
 			Flags: []cli.Flag{
-				cli.IntFlag{
-					Name: "delay",
+				cli.StringFlag{
+					Name:  "type",
+					Value: "random",
 				},
 			},
 		},
@@ -31,5 +51,5 @@ func main() {
 
 func play(ctx *cli.Context) {
 	g := game.New()
-	g.Play()
+	g.Play(players.NewHumanPlayer(bufio.NewScanner(os.Stdin)))
 }

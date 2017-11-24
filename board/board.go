@@ -7,10 +7,13 @@ import (
 	"errors"
 	"reflect"
 
+	"time"
+
 	"github.com/donutmonger/2048/stats"
 )
 
 func NewEmptyBoard() [][]int64 {
+	rand.Seed(time.Now().UnixNano())
 	return [][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},

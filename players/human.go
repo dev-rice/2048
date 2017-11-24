@@ -21,7 +21,7 @@ func NewHumanPlayer(scanner scanner) *HumanPlayer {
 	}
 }
 
-func (h HumanPlayer) GetAction() actions.Action {
+func (h HumanPlayer) GetAction(gameBoard [][]int64) actions.Action {
 	fmt.Print("Enter move (w,a,s,d): ")
 
 	h.s.Scan()
