@@ -3,19 +3,28 @@ package players
 import (
 	"sort"
 
+	"time"
+
 	"github.com/donutmonger/2048/actions"
 	"github.com/donutmonger/2048/board"
 	"github.com/donutmonger/2048/stats"
 )
 
 type GreedyScorePlayer struct {
+	delay time.Duration
 }
 
-func NewGreedyScorePlayer() GreedyScorePlayer {
-	return GreedyScorePlayer{}
+func NewGreedyScorePlayer(delay time.Duration) GreedyScorePlayer {
+	return GreedyScorePlayer{
+		delay: delay,
+	}
 }
 
 func (g GreedyScorePlayer) GetAction(gameBoard [][]int64) actions.Action {
+	if g.delay != 0*time.Second {
+		defer func() { time.Sleep(g.delay) }()
+	}
+
 	upScore := stats.NewScore()
 	_, err := board.MoveUp(gameBoard, upScore)
 	if err != nil {
