@@ -3,7 +3,7 @@ package board
 import (
 	"testing"
 
-	"github.com/donutmonger/2048/game"
+	"github.com/donutmonger/2048/stats"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,7 +26,7 @@ func TestMoveRightWithEmptyReturnsEmptyAndError(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	board, err := MoveRight(initialBoard, s)
 	assert.Equal(t, initialBoard, board)
 	assert.NotNil(t, err)
@@ -49,7 +49,7 @@ func TestMoveRightOneTwo(t *testing.T) {
 		{0, 0, 0, 2},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveRight(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -71,7 +71,7 @@ func TestMoveRightTwoTwos(t *testing.T) {
 		{0, 0, 0, 4},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveRight(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -93,7 +93,7 @@ func TestMoveRightThreeTwos(t *testing.T) {
 		{0, 0, 2, 4},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveRight(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -115,7 +115,7 @@ func TestMoveRightFourTwos(t *testing.T) {
 		{0, 0, 4, 4},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveRight(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -137,7 +137,7 @@ func TestMoveRightMultipleRows(t *testing.T) {
 		{0, 2, 4, 32},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveRight(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -152,7 +152,7 @@ func TestMoveRightWithNoChangesReturnsError(t *testing.T) {
 		{0, 16, 2, 32},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveRight(initialBoard, s)
 	assert.Equal(t, initialBoard, actualBoard)
 	assert.NotNil(t, err)
@@ -167,7 +167,7 @@ func TestMoveLeftWithEmptyReturnsEmpty(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveLeft(initialBoard, s)
 	assert.Equal(t, initialBoard, actualBoard)
 	assert.NotNil(t, err)
@@ -189,7 +189,7 @@ func TestMoveLeftOneTwo(t *testing.T) {
 		{2, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveLeft(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -211,7 +211,7 @@ func TestMoveLeftTwoTwos(t *testing.T) {
 		{4, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveLeft(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -233,7 +233,7 @@ func TestMoveLeftThreeTwos(t *testing.T) {
 		{4, 2, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveLeft(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -255,7 +255,7 @@ func TestMoveLeftFourTwos(t *testing.T) {
 		{4, 4, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveLeft(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -277,7 +277,7 @@ func TestMoveLeftMultipleRows(t *testing.T) {
 		{4, 16, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveLeft(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -292,7 +292,7 @@ func TestMoveLeftWithNoChangesReturnsError(t *testing.T) {
 		{2, 16, 2, 32},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveLeft(initialBoard, s)
 	assert.Equal(t, initialBoard, actualBoard)
 	assert.NotNil(t, err)
@@ -307,7 +307,7 @@ func TestMoveDownWithEmptyReturnsEmpty(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveDown(initialBoard, s)
 	assert.Equal(t, initialBoard, actualBoard)
 	assert.NotNil(t, err)
@@ -329,7 +329,7 @@ func TestMoveDownOneTwo(t *testing.T) {
 		{2, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveDown(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -351,7 +351,7 @@ func TestMoveDownTwoTwos(t *testing.T) {
 		{4, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveDown(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -373,7 +373,7 @@ func TestMoveDownThreeTwos(t *testing.T) {
 		{0, 0, 4, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveDown(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -395,7 +395,7 @@ func TestMoveDownFourTwos(t *testing.T) {
 		{0, 0, 4, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveDown(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -417,7 +417,7 @@ func TestMoveDownMultipleRows(t *testing.T) {
 		{4, 2, 16, 16},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveDown(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -432,7 +432,7 @@ func TestMoveDownWithNoChangesReturnsError(t *testing.T) {
 		{2, 16, 2, 32},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveDown(initialBoard, s)
 	assert.Equal(t, initialBoard, actualBoard)
 	assert.NotNil(t, err)
@@ -447,7 +447,7 @@ func TestMoveUpWithEmptyReturnsEmpty(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveUp(initialBoard, s)
 	assert.Equal(t, initialBoard, actualBoard)
 	assert.NotNil(t, err)
@@ -469,7 +469,7 @@ func TestMoveUpOneTwo(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveUp(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -491,7 +491,7 @@ func TestMoveUpTwoTwos(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveUp(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -513,7 +513,7 @@ func TestMoveUpThreeTwos(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveUp(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -535,7 +535,7 @@ func TestMoveUpFourTwos(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveUp(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -557,7 +557,7 @@ func TestMoveUpMultipleRows(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveUp(initialBoard, s)
 	assert.Equal(t, expectedBoard, actualBoard)
 	assert.Nil(t, err)
@@ -572,7 +572,7 @@ func TestMoveUpWithNoChangesReturnsError(t *testing.T) {
 		{2, 0, 0, 32},
 	}
 
-	s := game.NewScore()
+	s := stats.NewScore()
 	actualBoard, err := MoveUp(initialBoard, s)
 	assert.Equal(t, initialBoard, actualBoard)
 	assert.NotNil(t, err)
