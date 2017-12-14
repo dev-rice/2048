@@ -53,15 +53,3 @@ func (p GreedyMinimizePlayer) GetAction(gameBoard [][]int64) actions.Action {
 		return actions.MoveDown
 	}
 }
-
-func getNumTiles(board [][]int64) int {
-	nTiles := 0
-	for x := 0; x < len(board[0]); x++ {
-		for y := 0; y < len(board); y++ {
-			if board[x][y] != 0 {
-				nTiles++
-			}
-		}
-	}
-	return nTiles
-}
