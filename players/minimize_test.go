@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetActionSimpleMoveUp(t *testing.T) {
+func TestGetActionSimpleMoveDown(t *testing.T) {
 	b := [][]int64{
 		{8, 4, 0, 0},
 		{8, 4, 4, 0},
@@ -20,10 +20,10 @@ func TestGetActionSimpleMoveUp(t *testing.T) {
 	}
 
 	p := NewMinimizePlayer(0 * time.Second)
-	assert.Equal(t, actions.MoveUp, p.GetAction(b))
+	assert.Equal(t, actions.MoveDown, p.GetAction(b))
 }
 
-func TestGetActionSimpleMoveLeft(t *testing.T) {
+func TestGetActionSimpleMoveRight(t *testing.T) {
 	b := [][]int64{
 		{64, 4, 4, 2},
 		{64, 2, 2, 0},
@@ -32,31 +32,31 @@ func TestGetActionSimpleMoveLeft(t *testing.T) {
 	}
 
 	p := NewMinimizePlayer(0 * time.Second)
-	assert.Equal(t, actions.MoveLeft, p.GetAction(b))
-}
-
-func TestGetActionMoveRight(t *testing.T) {
-	b := [][]int64{
-		{64, 4, 0, 0},
-		{32, 2, 0, 0},
-		{64, 4, 0, 0},
-		{32, 2, 0, 0},
-	}
-
-	p := NewMinimizePlayer(0 * time.Second)
 	assert.Equal(t, actions.MoveRight, p.GetAction(b))
 }
 
-func TestGetActionMoveDown(t *testing.T) {
+func TestGetActionMoveLeft(t *testing.T) {
 	b := [][]int64{
-		{64, 16, 32, 8},
-		{32, 8, 16, 64},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
+		{0, 0, 64, 4},
+		{0, 0, 32, 2},
+		{0, 0, 64, 4},
+		{0, 0, 32, 2},
 	}
 
 	p := NewMinimizePlayer(0 * time.Second)
-	assert.Equal(t, actions.MoveDown, p.GetAction(b))
+	assert.Equal(t, actions.MoveLeft, p.GetAction(b))
+}
+
+func TestGetActionMoveUp(t *testing.T) {
+	b := [][]int64{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{64, 16, 32, 8},
+		{32, 8, 16, 64},
+	}
+
+	p := NewMinimizePlayer(0 * time.Second)
+	assert.Equal(t, actions.MoveUp, p.GetAction(b))
 }
 
 func TestGetActionCanMoveUp(t *testing.T) {
