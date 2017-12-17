@@ -25,14 +25,10 @@ func main() {
 				aiType := ctx.String("type")
 
 				var player players.Player
-				if aiType == "greedyscore" {
-					player = players.NewGreedyScorePlayer(time.Duration(ctx.Int("delay")) * time.Millisecond)
+				if aiType == "minimize" {
+					player = players.NewGreedyMinimizePlayer(time.Duration(ctx.Int("delay")) * time.Millisecond)
 				} else if aiType == "random" {
 					player = players.NewRandomPlayer()
-				} else if aiType == "greedyminimize" {
-					player = players.NewGreedyMinimizePlayer(time.Duration(ctx.Int("delay")) * time.Millisecond)
-				} else if aiType == "minimize" {
-					player = players.NewMinimizePlayer(time.Duration(ctx.Int("delay")) * time.Millisecond)
 				} else {
 					return errors.Errorf("Unknown ai player type '%s'", aiType)
 				}
@@ -47,8 +43,8 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "type",
-					Usage: "Changed the ai strategy. Choose from [random, greedyscore, greedyminimize, minimize]",
-					Value: "random",
+					Usage: "Changed the ai strategy. Choose from [minimize, random]",
+					Value: "minimize",
 				},
 			},
 		},
