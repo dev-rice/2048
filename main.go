@@ -25,8 +25,8 @@ func main() {
 				aiType := ctx.String("type")
 
 				var player players.Player
-				if aiType == "minimize" {
-					player = players.NewGreedyMinimizePlayer(time.Duration(ctx.Int("delay")) * time.Millisecond)
+				if aiType == "maximizeEmpty" {
+					player = players.NewMaximizeEmptyPlayer(time.Duration(ctx.Int("delay")) * time.Millisecond)
 				} else if aiType == "random" {
 					player = players.NewRandomPlayer()
 				} else {
@@ -43,8 +43,8 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "type",
-					Usage: "Changed the ai strategy. Choose from [minimize, random]",
-					Value: "minimize",
+					Usage: "Changed the ai strategy. Choose from [maximizeEmpty, random]",
+					Value: "maximizeEmpty",
 				},
 			},
 		},

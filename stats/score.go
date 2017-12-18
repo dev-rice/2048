@@ -7,7 +7,8 @@ type Score struct {
 // Possible stats to add
 //	1. number of moves
 //	1. game time
-//	1.
+//	1. time for each move
+//  1.
 
 func NewScore() *Score {
 	return &Score{

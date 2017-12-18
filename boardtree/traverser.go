@@ -8,6 +8,11 @@ import (
 	"github.com/donutmonger/2048/stats"
 )
 
+type Traverser struct {
+	GetScore scoreFunc
+	MaxDepth int
+}
+
 type actionTuple struct {
 	score  uint64
 	action actions.Action
@@ -26,8 +31,8 @@ func (s actionTuples) Less(i, j int) bool {
 
 type scoreFunc func(b [][]int64) uint64
 
-func GetBestMove(gameBoard [][]int64, getScore scoreFunc) actions.Action {
-	r := buildRoot(gameBoard, getScore, 10)
+func (t Traverser) GetBestMove(gameBoard [][]int64) actions.Action {
+	r := buildRoot(gameBoard, t.GetScore, t.MaxDepth)
 
 	a := make([]actionTuple, 0)
 	if r.up != nil {
@@ -55,45 +60,10 @@ type Node struct {
 	right *Node
 }
 
-func buildRoot(b [][]int64, score scoreFunc, maxdepth int) *Node {
-	r := &Node{
-		score: 0,
-	}
-	upBoard, err := board.MoveUp(b, stats.NewScore())
-	if err != nil {
-		r.up = nil
-	} else {
-		r.up = buildTree(upBoard, score, maxdepth-1)
-	}
-
-	downBoard, err := board.MoveDown(b, stats.NewScore())
-	if err != nil {
-		r.down = nil
-	} else {
-		r.down = buildTree(downBoard, score, maxdepth-1)
-	}
-
-	leftBoard, err := board.MoveLeft(b, stats.NewScore())
-	if err != nil {
-		r.left = nil
-	} else {
-		r.left = buildTree(leftBoard, score, maxdepth-1)
-	}
-
-	rightBoard, err := board.MoveRight(b, stats.NewScore())
-	if err != nil {
-		r.right = nil
-	} else {
-		r.right = buildTree(rightBoard, score, maxdepth-1)
-	}
-
-	return r
-}
-
-func buildTree(b [][]int64, score scoreFunc, depth int) *Node {
+func buildRoot(b [][]int64, getScore scoreFunc, depth int) *Node {
 	if depth == 0 {
 		return &Node{
-			score: score(b),
+			score: getScore(b),
 		}
 	}
 
@@ -103,28 +73,28 @@ func buildTree(b [][]int64, score scoreFunc, depth int) *Node {
 	if err != nil {
 		n.up = nil
 	} else {
-		n.up = buildTree(upBoard, score, depth-1)
+		n.up = buildRoot(upBoard, getScore, depth-1)
 	}
 
 	downBoard, err := board.MoveDown(b, stats.NewScore())
 	if err != nil {
 		n.down = nil
 	} else {
-		n.down = buildTree(downBoard, score, depth-1)
+		n.down = buildRoot(downBoard, getScore, depth-1)
 	}
 
 	leftBoard, err := board.MoveLeft(b, stats.NewScore())
 	if err != nil {
 		n.left = nil
 	} else {
-		n.left = buildTree(leftBoard, score, depth-1)
+		n.left = buildRoot(leftBoard, getScore, depth-1)
 	}
 
 	rightBoard, err := board.MoveRight(b, stats.NewScore())
 	if err != nil {
 		n.right = nil
 	} else {
-		n.right = buildTree(rightBoard, score, depth-1)
+		n.right = buildRoot(rightBoard, getScore, depth-1)
 	}
 
 	n.score = bestNodeScore(n.up, n.down, n.left, n.right)

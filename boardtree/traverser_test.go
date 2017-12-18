@@ -28,14 +28,19 @@ func TestGetBestMoveLeft(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	assert.Equal(t, actions.MoveLeft, GetBestMove(initialBoard, func(b [][]int64) uint64 {
-		leftBoard, _ := board.MoveLeft(initialBoard, stats.NewScore())
-		if areBoardsSame(b, leftBoard) {
-			return 100
-		} else {
-			return 0
-		}
-	}))
+	traverser := Traverser{
+		GetScore: func(b [][]int64) uint64 {
+			leftBoard, _ := board.MoveLeft(initialBoard, stats.NewScore())
+			if areBoardsSame(b, leftBoard) {
+				return 100
+			} else {
+				return 0
+			}
+		},
+		MaxDepth: 1,
+	}
+
+	assert.Equal(t, actions.MoveLeft, traverser.GetBestMove(initialBoard))
 }
 
 func TestGetBestMoveRight(t *testing.T) {
@@ -46,14 +51,19 @@ func TestGetBestMoveRight(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	assert.Equal(t, actions.MoveRight, GetBestMove(initialBoard, func(b [][]int64) uint64 {
-		rightBoard, _ := board.MoveRight(initialBoard, stats.NewScore())
-		if areBoardsSame(b, rightBoard) {
-			return 100
-		} else {
-			return 0
-		}
-	}))
+	traverser := Traverser{
+		GetScore: func(b [][]int64) uint64 {
+			rightBoard, _ := board.MoveRight(initialBoard, stats.NewScore())
+			if areBoardsSame(b, rightBoard) {
+				return 100
+			} else {
+				return 0
+			}
+		},
+		MaxDepth: 1,
+	}
+
+	assert.Equal(t, actions.MoveRight, traverser.GetBestMove(initialBoard))
 }
 
 func TestGetBestMoveUp(t *testing.T) {
@@ -64,14 +74,19 @@ func TestGetBestMoveUp(t *testing.T) {
 		{0, 0, 2, 2},
 	}
 
-	assert.Equal(t, actions.MoveUp, GetBestMove(initialBoard, func(b [][]int64) uint64 {
-		upBoard, _ := board.MoveUp(initialBoard, stats.NewScore())
-		if areBoardsSame(b, upBoard) {
-			return 100
-		} else {
-			return 0
-		}
-	}))
+	traverser := Traverser{
+		GetScore: func(b [][]int64) uint64 {
+			upBoard, _ := board.MoveUp(initialBoard, stats.NewScore())
+			if areBoardsSame(b, upBoard) {
+				return 100
+			} else {
+				return 0
+			}
+		},
+		MaxDepth: 1,
+	}
+
+	assert.Equal(t, actions.MoveUp, traverser.GetBestMove(initialBoard))
 }
 
 func TestGetBestMoveDown(t *testing.T) {
@@ -82,14 +97,19 @@ func TestGetBestMoveDown(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	assert.Equal(t, actions.MoveDown, GetBestMove(initialBoard, func(b [][]int64) uint64 {
-		downBoard, _ := board.MoveDown(initialBoard, stats.NewScore())
-		if areBoardsSame(b, downBoard) {
-			return 100
-		} else {
-			return 0
-		}
-	}))
+	traverser := Traverser{
+		GetScore: func(b [][]int64) uint64 {
+			downBoard, _ := board.MoveDown(initialBoard, stats.NewScore())
+			if areBoardsSame(b, downBoard) {
+				return 100
+			} else {
+				return 0
+			}
+		},
+		MaxDepth: 1,
+	}
+
+	assert.Equal(t, actions.MoveDown, traverser.GetBestMove(initialBoard))
 }
 
 func TestGetBestMoveAllMovesSameNoError(t *testing.T) {
@@ -100,9 +120,14 @@ func TestGetBestMoveAllMovesSameNoError(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	assert.Equal(t, actions.MoveRight, GetBestMove(initialBoard, func(b [][]int64) uint64 {
-		return 0
-	}))
+	traverser := Traverser{
+		GetScore: func(b [][]int64) uint64 {
+			return 0
+		},
+		MaxDepth: 1,
+	}
+
+	assert.Equal(t, actions.MoveRight, traverser.GetBestMove(initialBoard))
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorUpAndLeftAndRightMovesDown(t *testing.T) {
@@ -122,9 +147,14 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndLeftAndRightMovesDown(t *testing.
 	_, err = board.MoveRight(initialBoard, stats.NewScore())
 	assert.NotNil(t, err)
 
-	assert.Equal(t, actions.MoveDown, GetBestMove(initialBoard, func(b [][]int64) uint64 {
-		return 0
-	}))
+	traverser := Traverser{
+		GetScore: func(b [][]int64) uint64 {
+			return 0
+		},
+		MaxDepth: 1,
+	}
+
+	assert.Equal(t, actions.MoveDown, traverser.GetBestMove(initialBoard))
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorDownAndLeftAndRightMovesUp(t *testing.T) {
@@ -144,9 +174,14 @@ func TestGetBestMoveAllMovesSameScoreErrorDownAndLeftAndRightMovesUp(t *testing.
 	_, err = board.MoveRight(initialBoard, stats.NewScore())
 	assert.NotNil(t, err)
 
-	assert.Equal(t, actions.MoveUp, GetBestMove(initialBoard, func(b [][]int64) uint64 {
-		return 0
-	}))
+	traverser := Traverser{
+		GetScore: func(b [][]int64) uint64 {
+			return 0
+		},
+		MaxDepth: 1,
+	}
+
+	assert.Equal(t, actions.MoveUp, traverser.GetBestMove(initialBoard))
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndRightMovesLeft(t *testing.T) {
@@ -166,9 +201,14 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndRightMovesLeft(t *testing.
 	_, err = board.MoveRight(initialBoard, stats.NewScore())
 	assert.NotNil(t, err)
 
-	assert.Equal(t, actions.MoveLeft, GetBestMove(initialBoard, func(b [][]int64) uint64 {
-		return 0
-	}))
+	traverser := Traverser{
+		GetScore: func(b [][]int64) uint64 {
+			return 0
+		},
+		MaxDepth: 1,
+	}
+
+	assert.Equal(t, actions.MoveLeft, traverser.GetBestMove(initialBoard))
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndLeftMovesRight(t *testing.T) {
@@ -188,9 +228,14 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndLeftMovesRight(t *testing.
 	_, err = board.MoveLeft(initialBoard, stats.NewScore())
 	assert.NotNil(t, err)
 
-	assert.Equal(t, actions.MoveRight, GetBestMove(initialBoard, func(b [][]int64) uint64 {
-		return 0
-	}))
+	traverser := Traverser{
+		GetScore: func(b [][]int64) uint64 {
+			return 0
+		},
+		MaxDepth: 1,
+	}
+
+	assert.Equal(t, actions.MoveRight, traverser.GetBestMove(initialBoard))
 }
 
 // Probably test error case when it somehow gets a board with no moves?

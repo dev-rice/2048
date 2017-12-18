@@ -7,22 +7,27 @@ import (
 	"github.com/donutmonger/2048/boardtree"
 )
 
-type GreedyMinimizePlayer struct {
+type MaximizeEmptyPlayer struct {
 	delay time.Duration
 }
 
-func NewGreedyMinimizePlayer(delay time.Duration) GreedyMinimizePlayer {
-	return GreedyMinimizePlayer{
+func NewMaximizeEmptyPlayer(delay time.Duration) MaximizeEmptyPlayer {
+	return MaximizeEmptyPlayer{
 		delay: delay,
 	}
 }
 
-func (p GreedyMinimizePlayer) GetAction(gameBoard [][]int64) actions.Action {
+func (p MaximizeEmptyPlayer) GetAction(gameBoard [][]int64) actions.Action {
 	if p.delay != 0*time.Second {
 		defer func() { time.Sleep(p.delay) }()
 	}
 
-	return boardtree.GetBestMove(gameBoard, getNumEmptyTiles)
+	t := boardtree.Traverser{
+		GetScore: getNumEmptyTiles,
+		MaxDepth: 3,
+	}
+
+	return t.GetBestMove(gameBoard)
 
 }
 
