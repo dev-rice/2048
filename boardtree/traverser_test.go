@@ -240,6 +240,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndLeftMovesRight(t *testing.
 
 // Probably test error case when it somehow gets a board with no moves?
 
+// These tests should probably be in a separate package
 func getNumEmptyTiles(board [][]int64) uint64 {
 	emptyTiles := uint64(0)
 	for x := 0; x < len(board[0]); x++ {
