@@ -7,7 +7,8 @@ import (
 
 	"time"
 
-	"github.com/donutmonger/2048/boardtree"
+	"github.com/donutmonger/2048/ai"
+	"github.com/donutmonger/2048/ai/rating"
 	"github.com/donutmonger/2048/game"
 	"github.com/donutmonger/2048/players"
 	"github.com/pkg/errors"
@@ -20,7 +21,7 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:   "ai",
-			Action: ai,
+			Action: aiPlay,
 			Flags: []cli.Flag{
 				cli.IntFlag{
 					Name:  "delay",
@@ -28,7 +29,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "strategy",
-					Usage: "Changed the ai strategy. Choose from [maximizeEmpty, random]",
+					Usage: "Changed the ai strategy. Choose from [maximizeEmpty, edgeLover, random]",
 					Value: "maximizeEmpty",
 				},
 			},
@@ -46,37 +47,32 @@ func play(_ *cli.Context) {
 	g.Play(players.NewHumanPlayer(bufio.NewScanner(os.Stdin)))
 }
 
-func ai(ctx *cli.Context) error {
+func aiPlay(ctx *cli.Context) error {
 	g := game.New()
 
-	aiType := ctx.String("strategy")
+	strategy := ctx.String("strategy")
 
 	var player players.Player
-	if aiType == "maximizeEmpty" {
+	if strategy == "maximizeEmpty" {
 		delay := time.Duration(ctx.Int("delay")) * time.Millisecond
-		t := boardtree.Traverser{
-			GetScore: getNumEmptyTiles,
-			MaxDepth: 4,
+		t := ai.Traverser{
+			GetRating: rating.GetRatingMaximizeEmpty,
+			MaxDepth:  4,
 		}
 		player = players.NewAIPlayer(delay, t)
-	} else if aiType == "random" {
+	} else if strategy == "edgeLover" {
+		delay := time.Duration(ctx.Int("delay")) * time.Millisecond
+		t := ai.Traverser{
+			GetRating: rating.GetRatingEdgeLover,
+			MaxDepth:  4,
+		}
+		player = players.NewAIPlayer(delay, t)
+	} else if strategy == "random" {
 		player = players.NewRandomPlayer()
 	} else {
-		return errors.Errorf("Unknown ai player type '%s'", aiType)
+		return errors.Errorf("Unknown ai player type '%s'", strategy)
 	}
 
 	g.Play(player)
 	return nil
-}
-
-func getNumEmptyTiles(board [][]int64) uint64 {
-	emptyTiles := uint64(0)
-	for x := 0; x < len(board[0]); x++ {
-		for y := 0; y < len(board); y++ {
-			if board[x][y] == 0 {
-				emptyTiles++
-			}
-		}
-	}
-	return emptyTiles
 }

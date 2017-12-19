@@ -1,4 +1,4 @@
-package boardtree
+package ai
 
 import (
 	"testing"
@@ -29,7 +29,7 @@ func TestGetBestMoveLeft(t *testing.T) {
 	}
 
 	traverser := Traverser{
-		GetScore: func(b [][]int64) uint64 {
+		GetRating: func(b [][]int64) uint64 {
 			leftBoard, _ := board.MoveLeft(initialBoard, stats.NewScore())
 			if areBoardsSame(b, leftBoard) {
 				return 100
@@ -52,7 +52,7 @@ func TestGetBestMoveRight(t *testing.T) {
 	}
 
 	traverser := Traverser{
-		GetScore: func(b [][]int64) uint64 {
+		GetRating: func(b [][]int64) uint64 {
 			rightBoard, _ := board.MoveRight(initialBoard, stats.NewScore())
 			if areBoardsSame(b, rightBoard) {
 				return 100
@@ -75,7 +75,7 @@ func TestGetBestMoveUp(t *testing.T) {
 	}
 
 	traverser := Traverser{
-		GetScore: func(b [][]int64) uint64 {
+		GetRating: func(b [][]int64) uint64 {
 			upBoard, _ := board.MoveUp(initialBoard, stats.NewScore())
 			if areBoardsSame(b, upBoard) {
 				return 100
@@ -98,7 +98,7 @@ func TestGetBestMoveDown(t *testing.T) {
 	}
 
 	traverser := Traverser{
-		GetScore: func(b [][]int64) uint64 {
+		GetRating: func(b [][]int64) uint64 {
 			downBoard, _ := board.MoveDown(initialBoard, stats.NewScore())
 			if areBoardsSame(b, downBoard) {
 				return 100
@@ -121,7 +121,7 @@ func TestGetBestMoveAllMovesSameNoError(t *testing.T) {
 	}
 
 	traverser := Traverser{
-		GetScore: func(b [][]int64) uint64 {
+		GetRating: func(b [][]int64) uint64 {
 			return 0
 		},
 		MaxDepth: 1,
@@ -148,7 +148,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndLeftAndRightMovesDown(t *testing.
 	assert.NotNil(t, err)
 
 	traverser := Traverser{
-		GetScore: func(b [][]int64) uint64 {
+		GetRating: func(b [][]int64) uint64 {
 			return 0
 		},
 		MaxDepth: 1,
@@ -175,7 +175,7 @@ func TestGetBestMoveAllMovesSameScoreErrorDownAndLeftAndRightMovesUp(t *testing.
 	assert.NotNil(t, err)
 
 	traverser := Traverser{
-		GetScore: func(b [][]int64) uint64 {
+		GetRating: func(b [][]int64) uint64 {
 			return 0
 		},
 		MaxDepth: 1,
@@ -202,7 +202,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndRightMovesLeft(t *testing.
 	assert.NotNil(t, err)
 
 	traverser := Traverser{
-		GetScore: func(b [][]int64) uint64 {
+		GetRating: func(b [][]int64) uint64 {
 			return 0
 		},
 		MaxDepth: 1,
@@ -229,7 +229,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndLeftMovesRight(t *testing.
 	assert.NotNil(t, err)
 
 	traverser := Traverser{
-		GetScore: func(b [][]int64) uint64 {
+		GetRating: func(b [][]int64) uint64 {
 			return 0
 		},
 		MaxDepth: 1,

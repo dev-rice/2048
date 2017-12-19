@@ -1,4 +1,4 @@
-package boardtree
+package ai
 
 import (
 	"sort"
@@ -9,8 +9,8 @@ import (
 )
 
 type Traverser struct {
-	GetScore scoreFunc
-	MaxDepth int
+	GetRating ratingFunc
+	MaxDepth  int
 }
 
 type actionTuple struct {
@@ -29,10 +29,10 @@ func (s actionTuples) Less(i, j int) bool {
 	return s[i].score < s[j].score
 }
 
-type scoreFunc func(b [][]int64) uint64
+type ratingFunc func(b [][]int64) uint64
 
 func (t Traverser) GetBestMove(gameBoard [][]int64) actions.Action {
-	r := buildRoot(gameBoard, t.GetScore, t.MaxDepth)
+	r := buildRoot(gameBoard, t.GetRating, t.MaxDepth)
 
 	a := make([]actionTuple, 0)
 	if r.up != nil {
@@ -60,10 +60,10 @@ type Node struct {
 	right *Node
 }
 
-func buildRoot(b [][]int64, getScore scoreFunc, depth int) *Node {
+func buildRoot(b [][]int64, getRating ratingFunc, depth int) *Node {
 	if depth == 0 {
 		return &Node{
-			score: getScore(b),
+			score: getRating(b),
 		}
 	}
 
@@ -73,35 +73,35 @@ func buildRoot(b [][]int64, getScore scoreFunc, depth int) *Node {
 	if err != nil {
 		n.up = nil
 	} else {
-		n.up = buildRoot(upBoard, getScore, depth-1)
+		n.up = buildRoot(upBoard, getRating, depth-1)
 	}
 
 	downBoard, err := board.MoveDown(b, stats.NewScore())
 	if err != nil {
 		n.down = nil
 	} else {
-		n.down = buildRoot(downBoard, getScore, depth-1)
+		n.down = buildRoot(downBoard, getRating, depth-1)
 	}
 
 	leftBoard, err := board.MoveLeft(b, stats.NewScore())
 	if err != nil {
 		n.left = nil
 	} else {
-		n.left = buildRoot(leftBoard, getScore, depth-1)
+		n.left = buildRoot(leftBoard, getRating, depth-1)
 	}
 
 	rightBoard, err := board.MoveRight(b, stats.NewScore())
 	if err != nil {
 		n.right = nil
 	} else {
-		n.right = buildRoot(rightBoard, getScore, depth-1)
+		n.right = buildRoot(rightBoard, getRating, depth-1)
 	}
 
-	n.score = bestNodeScore(n.up, n.down, n.left, n.right)
+	n.score = bestNodeRating(n.up, n.down, n.left, n.right)
 	return n
 }
 
-func bestNodeScore(nodes ...*Node) uint64 {
+func bestNodeRating(nodes ...*Node) uint64 {
 	best := uint64(0)
 	for _, n := range nodes {
 		if n != nil {
