@@ -4,6 +4,12 @@ type Score struct {
 	score int64
 }
 
+// Possible stats to add
+//	1. number of moves
+//	1. game time
+//	1. time for each move
+//  1.
+
 func NewScore() *Score {
 	return &Score{
 		score: 0,
