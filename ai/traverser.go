@@ -5,7 +5,6 @@ import (
 
 	"github.com/donutmonger/2048/actions"
 	"github.com/donutmonger/2048/board"
-	"github.com/donutmonger/2048/stats"
 )
 
 type Traverser struct {
@@ -36,16 +35,16 @@ func (t Traverser) GetBestMove(gameBoard [][]int64) actions.Action {
 
 	a := make([]actionTuple, 0)
 	if r.up != nil {
-		a = append(a, actionTuple{action: actions.MoveUp, score: r.up.score})
+		a = append(a, actionTuple{action: actions.MoveUp, score: r.up.rating})
 	}
 	if r.down != nil {
-		a = append(a, actionTuple{action: actions.MoveDown, score: r.down.score})
+		a = append(a, actionTuple{action: actions.MoveDown, score: r.down.rating})
 	}
 	if r.left != nil {
-		a = append(a, actionTuple{action: actions.MoveLeft, score: r.left.score})
+		a = append(a, actionTuple{action: actions.MoveLeft, score: r.left.rating})
 	}
 	if r.right != nil {
-		a = append(a, actionTuple{action: actions.MoveRight, score: r.right.score})
+		a = append(a, actionTuple{action: actions.MoveRight, score: r.right.rating})
 	}
 
 	sort.Sort(actionTuples(a))
@@ -53,51 +52,51 @@ func (t Traverser) GetBestMove(gameBoard [][]int64) actions.Action {
 }
 
 type Node struct {
-	score uint64
-	up    *Node
-	down  *Node
-	left  *Node
-	right *Node
+	rating uint64
+	up     *Node
+	down   *Node
+	left   *Node
+	right  *Node
 }
 
 func buildRoot(b [][]int64, getRating ratingFunc, depth int) *Node {
 	if depth == 0 {
 		return &Node{
-			score: getRating(b),
+			rating: getRating(b),
 		}
 	}
 
 	n := &Node{}
 
-	upBoard, err := board.MoveUp(b, stats.NewScore())
+	upBoard, _, err := board.MoveUp(b)
 	if err != nil {
 		n.up = nil
 	} else {
 		n.up = buildRoot(upBoard, getRating, depth-1)
 	}
 
-	downBoard, err := board.MoveDown(b, stats.NewScore())
+	downBoard, _, err := board.MoveDown(b)
 	if err != nil {
 		n.down = nil
 	} else {
 		n.down = buildRoot(downBoard, getRating, depth-1)
 	}
 
-	leftBoard, err := board.MoveLeft(b, stats.NewScore())
+	leftBoard, _, err := board.MoveLeft(b)
 	if err != nil {
 		n.left = nil
 	} else {
 		n.left = buildRoot(leftBoard, getRating, depth-1)
 	}
 
-	rightBoard, err := board.MoveRight(b, stats.NewScore())
+	rightBoard, _, err := board.MoveRight(b)
 	if err != nil {
 		n.right = nil
 	} else {
 		n.right = buildRoot(rightBoard, getRating, depth-1)
 	}
 
-	n.score = bestNodeRating(n.up, n.down, n.left, n.right)
+	n.rating = bestNodeRating(n.up, n.down, n.left, n.right)
 	return n
 }
 
@@ -105,8 +104,8 @@ func bestNodeRating(nodes ...*Node) uint64 {
 	best := uint64(0)
 	for _, n := range nodes {
 		if n != nil {
-			if n.score > best {
-				best = n.score
+			if n.rating > best {
+				best = n.rating
 			}
 		}
 	}

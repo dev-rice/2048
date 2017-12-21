@@ -6,7 +6,6 @@ import (
 	"github.com/donutmonger/2048/actions"
 	"github.com/donutmonger/2048/board"
 	"github.com/donutmonger/2048/players"
-	"github.com/donutmonger/2048/stats"
 )
 
 type Game struct {
@@ -21,7 +20,7 @@ func (g Game) Play(player players.Player) {
 	board.PlaceRandomTile(gameBoard)
 	board.PlaceRandomTile(gameBoard)
 
-	score := stats.NewScore()
+	var score int64
 	didMove := false
 	for {
 		if didMove {
@@ -30,31 +29,33 @@ func (g Game) Play(player players.Player) {
 		}
 
 		clearScreen()
-		fmt.Printf("Score: %v\n", score.Get())
+		fmt.Printf("Score: %v\n", score)
 		fmt.Println(board.NewStringer(gameBoard).String() + "\n")
 
 		if board.AreMovesLeft(gameBoard) {
 			action := player.GetAction(gameBoard)
 
+			var scoreAdd int64
 			var err error
 			switch action {
 			case actions.MoveUp:
-				gameBoard, err = board.MoveUp(gameBoard, score)
+				gameBoard, scoreAdd, err = board.MoveUp(gameBoard)
 				break
 			case actions.MoveDown:
-				gameBoard, err = board.MoveDown(gameBoard, score)
+				gameBoard, scoreAdd, err = board.MoveDown(gameBoard)
 				break
 			case actions.MoveLeft:
-				gameBoard, err = board.MoveLeft(gameBoard, score)
+				gameBoard, scoreAdd, err = board.MoveLeft(gameBoard)
 				break
 			case actions.MoveRight:
-				gameBoard, err = board.MoveRight(gameBoard, score)
+				gameBoard, scoreAdd, err = board.MoveRight(gameBoard)
 				break
 			case actions.Quit:
 				fmt.Println("Quitting...")
 				return
 			}
 			if err == nil {
+				score += scoreAdd
 				didMove = true
 			}
 		} else {
