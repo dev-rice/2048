@@ -1,6 +1,8 @@
 package game
 
 import (
+	"time"
+
 	"fmt"
 
 	"github.com/donutmonger/2048/actions"
@@ -8,28 +10,42 @@ import (
 	"github.com/donutmonger/2048/players"
 )
 
+type GameStats struct {
+	MovesMade          int64
+	Score              int64
+	ElapsedTimeSeconds float64
+}
+
 type Game struct {
+	placeNewTileFunc func(board [][]int64) [][]int64
+	newBoardFunc     func() [][]int64
 }
 
 func New() Game {
-	return Game{}
+	return Game{
+		placeNewTileFunc: board.PlaceRandomTile,
+	}
 }
 
-func (g Game) Play(player players.Player) {
+func (g Game) Play(player players.Player) (stats GameStats) {
 	gameBoard := board.NewEmptyBoard()
-	board.PlaceRandomTile(gameBoard)
-	board.PlaceRandomTile(gameBoard)
+	gameBoard = g.placeNewTileFunc(gameBoard)
+	gameBoard = g.placeNewTileFunc(gameBoard)
 
-	var score int64
+	start := time.Now()
+	defer func() {
+		stats.ElapsedTimeSeconds = time.Since(start).Seconds()
+	}()
+
 	didMove := false
 	for {
 		if didMove {
-			gameBoard = board.PlaceRandomTile(gameBoard)
+			gameBoard = g.placeNewTileFunc(gameBoard)
 			didMove = false
 		}
 
 		clearScreen()
-		fmt.Printf("Score: %v\n", score)
+		fmt.Printf("Score: %v\n", stats.Score)
 		fmt.Println(board.NewStringer(gameBoard).String() + "\n")
 
 		if board.AreMovesLeft(gameBoard) {
@@ -52,10 +68,11 @@ func (g Game) Play(player players.Player) {
 				break
 			case actions.Quit:
 				fmt.Println("Quitting...")
-				return
+				return stats
 			}
 			if err == nil {
-				score += scoreAdd
+				stats.MovesMade += 1
+				stats.Score += scoreAdd
 				didMove = true
 			}
 		} else {
@@ -63,6 +80,7 @@ func (g Game) Play(player players.Player) {
 			break
 		}
 	}
+	return stats
 }
 
 func clearScreen() {

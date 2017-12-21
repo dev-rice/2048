@@ -7,6 +7,9 @@ import (
 
 	"time"
 
+	"encoding/json"
+	"fmt"
+
 	"github.com/donutmonger/2048/ai"
 	"github.com/donutmonger/2048/ai/rating"
 	"github.com/donutmonger/2048/game"
@@ -44,7 +47,10 @@ func main() {
 
 func play(_ *cli.Context) {
 	g := game.New()
-	g.Play(players.NewHumanPlayer(bufio.NewScanner(os.Stdin)))
+	stats := g.Play(players.NewHumanPlayer(bufio.NewScanner(os.Stdin)))
+
+	statsJson, _ := json.MarshalIndent(stats, "", " ")
+	fmt.Println(string(statsJson))
 }
 
 func aiPlay(ctx *cli.Context) error {
@@ -73,6 +79,10 @@ func aiPlay(ctx *cli.Context) error {
 		return errors.Errorf("Unknown ai player type '%s'", strategy)
 	}
 
-	g.Play(player)
+	stats := g.Play(player)
+
+	statsJson, _ := json.MarshalIndent(stats, "", " ")
+	fmt.Println(string(statsJson))
+
 	return nil
 }
