@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/donutmonger/2048/actions"
+	"github.com/donutmonger/2048/board"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,12 +38,12 @@ func TestPlayWithNoMoves(t *testing.T) {
 	player := newMockPlayer()
 
 	testGame := New()
-	var stats GameStats
+	var metrics GameMetrics
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		stats = testGame.Play(player)
+		metrics = testGame.Play(player)
 		wg.Done()
 	}()
 
@@ -50,13 +51,14 @@ func TestPlayWithNoMoves(t *testing.T) {
 
 	wg.Wait()
 
-	assert.Equal(t, int64(0), stats.MovesMade)
+	assert.Equal(t, int64(0), metrics.MovesMade)
 }
 
 func TestPlayWithOneMove(t *testing.T) {
 	player := newMockPlayer()
 
 	testGame := Game{
+		newBoardFunc: board.NewEmptyBoard,
 		placeNewTileFunc: func([][]int64) [][]int64 {
 			return [][]int64{
 				{0, 0, 0, 0},
@@ -66,12 +68,12 @@ func TestPlayWithOneMove(t *testing.T) {
 			}
 		},
 	}
-	var stats GameStats
+	var metrics GameMetrics
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		stats = testGame.Play(player)
+		metrics = testGame.Play(player)
 		wg.Done()
 	}()
 
@@ -80,14 +82,15 @@ func TestPlayWithOneMove(t *testing.T) {
 
 	wg.Wait()
 
-	assert.Equal(t, int64(1), stats.MovesMade)
-	assert.Equal(t, int64(0), stats.Score)
+	assert.Equal(t, int64(1), metrics.MovesMade)
+	assert.Equal(t, int64(0), metrics.Score)
 }
 
 func TestPlayWithOneMoveWithScore(t *testing.T) {
 	player := newMockPlayer()
 
 	testGame := Game{
+		newBoardFunc: board.NewEmptyBoard,
 		placeNewTileFunc: func([][]int64) [][]int64 {
 			return [][]int64{
 				{0, 0, 0, 0},
@@ -97,12 +100,12 @@ func TestPlayWithOneMoveWithScore(t *testing.T) {
 			}
 		},
 	}
-	var stats GameStats
+	var metrics GameMetrics
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		stats = testGame.Play(player)
+		metrics = testGame.Play(player)
 		wg.Done()
 	}()
 
@@ -111,6 +114,44 @@ func TestPlayWithOneMoveWithScore(t *testing.T) {
 
 	wg.Wait()
 
-	assert.Equal(t, int64(1), stats.MovesMade)
-	assert.Equal(t, int64(64), stats.Score)
+	assert.Equal(t, int64(1), metrics.MovesMade)
+	assert.Equal(t, int64(64), metrics.Score)
+}
+
+func TestPlayWithFiveMoves(t *testing.T) {
+	player := newMockPlayer()
+
+	testGame := Game{
+		newBoardFunc: func() [][]int64 {
+			return [][]int64{
+				{0, 0, 0, 0},
+				{0, 0, 0, 0},
+				{0, 0, 0, 0},
+				{0, 0, 0, 2},
+			}
+		},
+		placeNewTileFunc: func(b [][]int64) [][]int64 {
+			return b
+		},
+	}
+	var metrics GameMetrics
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		metrics = testGame.Play(player)
+		wg.Done()
+	}()
+
+	player.executeAction(actions.MoveLeft)
+	player.executeAction(actions.MoveUp)
+	player.executeAction(actions.MoveRight)
+	player.executeAction(actions.MoveDown)
+	player.executeAction(actions.MoveLeft)
+	player.executeAction(actions.Quit)
+
+	wg.Wait()
+
+	assert.Equal(t, int64(5), metrics.MovesMade)
+	assert.Equal(t, int64(0), metrics.Score)
 }

@@ -10,25 +10,30 @@ import (
 	"github.com/donutmonger/2048/players"
 )
 
-type GameStats struct {
+// Ideas for more metrics:
+// 		number of up, left, right, and down moves
+//		longest time spent moving
+//
+type GameMetrics struct {
 	MovesMade          int64
 	Score              int64
 	ElapsedTimeSeconds float64
 }
 
 type Game struct {
-	placeNewTileFunc func(board [][]int64) [][]int64
 	newBoardFunc     func() [][]int64
+	placeNewTileFunc func(board [][]int64) [][]int64
 }
 
 func New() Game {
 	return Game{
+		newBoardFunc:     board.NewEmptyBoard,
 		placeNewTileFunc: board.PlaceRandomTile,
 	}
 }
 
-func (g Game) Play(player players.Player) (stats GameStats) {
-	gameBoard := board.NewEmptyBoard()
+func (g Game) Play(player players.Player) (stats GameMetrics) {
+	gameBoard := g.newBoardFunc()
 	gameBoard = g.placeNewTileFunc(gameBoard)
 	gameBoard = g.placeNewTileFunc(gameBoard)
 

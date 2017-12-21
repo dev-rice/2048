@@ -47,10 +47,9 @@ func main() {
 
 func play(_ *cli.Context) {
 	g := game.New()
-	stats := g.Play(players.NewHumanPlayer(bufio.NewScanner(os.Stdin)))
-
-	statsJson, _ := json.MarshalIndent(stats, "", " ")
-	fmt.Println(string(statsJson))
+	metrics := g.Play(players.NewHumanPlayer(bufio.NewScanner(os.Stdin)))
+	metricsJson, _ := json.MarshalIndent(metrics, "", " ")
+	fmt.Println(string(metricsJson))
 }
 
 func aiPlay(ctx *cli.Context) error {
@@ -79,10 +78,9 @@ func aiPlay(ctx *cli.Context) error {
 		return errors.Errorf("Unknown ai player type '%s'", strategy)
 	}
 
-	stats := g.Play(player)
-
-	statsJson, _ := json.MarshalIndent(stats, "", " ")
-	fmt.Println(string(statsJson))
+	metrics := g.Play(player)
+	metricsJson, _ := json.MarshalIndent(metrics, "", " ")
+	fmt.Println(string(metricsJson))
 
 	return nil
 }
