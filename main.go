@@ -32,8 +32,12 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "strategy",
-					Usage: "Changed the ai strategy. Choose from [maximizeEmpty, edgeLover, random]",
-					Value: "maximizeEmpty",
+					Usage: "Changes the ai strategy. Choose from [maximize_empty, maximize_score, edge_lover, random]",
+					Value: "maximize_empty",
+				},
+				cli.BoolFlag{
+					Name:  "silent",
+					Usage: "Will not print out the game state while playing. Only the metrics will be output after the game is done.",
 				},
 			},
 		},
@@ -45,9 +49,32 @@ func main() {
 	app.Run(os.Args)
 }
 
+type printer interface {
+	Printf(format string, v ...interface{})
+	ClearScreen()
+}
+
+type stdoutPrinter struct{}
+
+func (p stdoutPrinter) Printf(format string, v ...interface{}) {
+	fmt.Printf(format, v...)
+}
+
+func (p stdoutPrinter) ClearScreen() {
+	print("\033[H\033[2J")
+}
+
+type silentPrinter struct{}
+
+func (p silentPrinter) Printf(format string, v ...interface{}) {
+}
+
+func (p silentPrinter) ClearScreen() {
+}
+
 func play(_ *cli.Context) {
 	g := game.New()
-	metrics := g.Play(players.NewHumanPlayer(bufio.NewScanner(os.Stdin)))
+	metrics := g.Play(players.NewHumanPlayer(bufio.NewScanner(os.Stdin)), stdoutPrinter{})
 	metricsJson, _ := json.MarshalIndent(metrics, "", " ")
 	fmt.Println(string(metricsJson))
 }
@@ -57,18 +84,30 @@ func aiPlay(ctx *cli.Context) error {
 
 	strategy := ctx.String("strategy")
 
+	var p printer = stdoutPrinter{}
+	if ctx.Bool("silent") {
+		p = silentPrinter{}
+	}
+
 	var player players.Player
-	if strategy == "maximizeEmpty" {
+	if strategy == "maximize_empty" {
 		delay := time.Duration(ctx.Int("delay")) * time.Millisecond
 		t := ai.Traverser{
 			GetRating: rating.GetRatingMaximizeEmpty,
 			MaxDepth:  4,
 		}
 		player = players.NewAIPlayer(delay, t)
-	} else if strategy == "edgeLover" {
+	} else if strategy == "edge_lover" {
 		delay := time.Duration(ctx.Int("delay")) * time.Millisecond
 		t := ai.Traverser{
 			GetRating: rating.GetRatingEdgeLover,
+			MaxDepth:  4,
+		}
+		player = players.NewAIPlayer(delay, t)
+	} else if strategy == "maximize_score" {
+		delay := time.Duration(ctx.Int("delay")) * time.Millisecond
+		t := ai.Traverser{
+			GetRating: rating.GetRatingMaximizeScore,
 			MaxDepth:  4,
 		}
 		player = players.NewAIPlayer(delay, t)
@@ -78,7 +117,7 @@ func aiPlay(ctx *cli.Context) error {
 		return errors.Errorf("Unknown ai player type '%s'", strategy)
 	}
 
-	metrics := g.Play(player)
+	metrics := g.Play(player, p)
 	metricsJson, _ := json.MarshalIndent(metrics, "", " ")
 	fmt.Println(string(metricsJson))
 

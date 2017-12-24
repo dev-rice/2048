@@ -3,8 +3,6 @@ package game
 import (
 	"time"
 
-	"fmt"
-
 	"github.com/donutmonger/2048/actions"
 	"github.com/donutmonger/2048/board"
 	"github.com/donutmonger/2048/players"
@@ -13,11 +11,18 @@ import (
 // Ideas for more metrics:
 // 		number of up, left, right, and down moves
 //		longest time spent moving
+//		highest tile
 //
+
 type GameMetrics struct {
 	MovesMade          int64
 	Score              int64
 	ElapsedTimeSeconds float64
+}
+
+type printer interface {
+	Printf(format string, v ...interface{})
+	ClearScreen()
 }
 
 type Game struct {
@@ -32,7 +37,7 @@ func New() Game {
 	}
 }
 
-func (g Game) Play(player players.Player) (stats GameMetrics) {
+func (g Game) Play(player players.Player, printer printer) (stats GameMetrics) {
 	gameBoard := g.newBoardFunc()
 	gameBoard = g.placeNewTileFunc(gameBoard)
 	gameBoard = g.placeNewTileFunc(gameBoard)
@@ -49,9 +54,9 @@ func (g Game) Play(player players.Player) (stats GameMetrics) {
 			didMove = false
 		}
 
-		clearScreen()
-		fmt.Printf("Score: %v\n", stats.Score)
-		fmt.Println(board.NewStringer(gameBoard).String() + "\n")
+		printer.ClearScreen()
+		printer.Printf("Score: %v\n", stats.Score)
+		printer.Printf("%s\n\n", board.NewStringer(gameBoard))
 
 		if board.AreMovesLeft(gameBoard) {
 			action := player.GetAction(gameBoard)
@@ -72,7 +77,7 @@ func (g Game) Play(player players.Player) (stats GameMetrics) {
 				gameBoard, scoreAdd, err = board.MoveRight(gameBoard)
 				break
 			case actions.Quit:
-				fmt.Println("Quitting...")
+				printer.Printf("Quitting...\n")
 				return stats
 			}
 			if err == nil {
@@ -81,13 +86,9 @@ func (g Game) Play(player players.Player) (stats GameMetrics) {
 				didMove = true
 			}
 		} else {
-			fmt.Println("There are no moves left, you lose!")
+			printer.Printf("There are no moves left, you lose!\n")
 			break
 		}
 	}
 	return stats
-}
-
-func clearScreen() {
-	print("\033[H\033[2J")
 }

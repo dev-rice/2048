@@ -10,6 +10,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type mockPrinter struct {
+	PrintfCall struct {
+		Times    int
+		Receives struct {
+			Format string
+			Values []interface{}
+		}
+	}
+	ClearScreenCall struct {
+		Times int
+	}
+}
+
+func (p *mockPrinter) Printf(format string, v ...interface{}) {
+	p.PrintfCall.Receives.Format = format
+	p.PrintfCall.Receives.Values = v
+	p.PrintfCall.Times += 1
+}
+
+func (p *mockPrinter) ClearScreen() {
+	p.ClearScreenCall.Times += 1
+}
+
 type mockPlayer struct {
 	moveSignal chan actions.Action
 }
@@ -36,6 +59,7 @@ func (m mockPlayer) executeAction(a actions.Action) {
 
 func TestPlayWithNoMoves(t *testing.T) {
 	player := newMockPlayer()
+	printer := &mockPrinter{}
 
 	testGame := New()
 	var metrics GameMetrics
@@ -43,7 +67,7 @@ func TestPlayWithNoMoves(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		metrics = testGame.Play(player)
+		metrics = testGame.Play(player, printer)
 		wg.Done()
 	}()
 
@@ -52,10 +76,13 @@ func TestPlayWithNoMoves(t *testing.T) {
 	wg.Wait()
 
 	assert.Equal(t, int64(0), metrics.MovesMade)
+	assert.Equal(t, 1, printer.ClearScreenCall.Times)
+	assert.Equal(t, 3, printer.PrintfCall.Times)
 }
 
 func TestPlayWithOneMove(t *testing.T) {
 	player := newMockPlayer()
+	printer := &mockPrinter{}
 
 	testGame := Game{
 		newBoardFunc: board.NewEmptyBoard,
@@ -73,7 +100,7 @@ func TestPlayWithOneMove(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		metrics = testGame.Play(player)
+		metrics = testGame.Play(player, printer)
 		wg.Done()
 	}()
 
@@ -84,10 +111,13 @@ func TestPlayWithOneMove(t *testing.T) {
 
 	assert.Equal(t, int64(1), metrics.MovesMade)
 	assert.Equal(t, int64(0), metrics.Score)
+	assert.Equal(t, 2, printer.ClearScreenCall.Times)
+	assert.Equal(t, 5, printer.PrintfCall.Times)
 }
 
 func TestPlayWithOneMoveWithScore(t *testing.T) {
 	player := newMockPlayer()
+	printer := &mockPrinter{}
 
 	testGame := Game{
 		newBoardFunc: board.NewEmptyBoard,
@@ -105,7 +135,7 @@ func TestPlayWithOneMoveWithScore(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		metrics = testGame.Play(player)
+		metrics = testGame.Play(player, printer)
 		wg.Done()
 	}()
 
@@ -116,10 +146,13 @@ func TestPlayWithOneMoveWithScore(t *testing.T) {
 
 	assert.Equal(t, int64(1), metrics.MovesMade)
 	assert.Equal(t, int64(64), metrics.Score)
+	assert.Equal(t, 2, printer.ClearScreenCall.Times)
+	assert.Equal(t, 5, printer.PrintfCall.Times)
 }
 
 func TestPlayWithFiveMoves(t *testing.T) {
 	player := newMockPlayer()
+	printer := &mockPrinter{}
 
 	testGame := Game{
 		newBoardFunc: func() [][]int64 {
@@ -139,7 +172,7 @@ func TestPlayWithFiveMoves(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		metrics = testGame.Play(player)
+		metrics = testGame.Play(player, printer)
 		wg.Done()
 	}()
 
@@ -154,4 +187,6 @@ func TestPlayWithFiveMoves(t *testing.T) {
 
 	assert.Equal(t, int64(5), metrics.MovesMade)
 	assert.Equal(t, int64(0), metrics.Score)
+	assert.Equal(t, 6, printer.ClearScreenCall.Times)
+	assert.Equal(t, 13, printer.PrintfCall.Times)
 }
