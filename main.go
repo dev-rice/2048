@@ -90,22 +90,20 @@ func aiPlay(ctx *cli.Context) error {
 	}
 
 	var player players.Player
+	delay := time.Duration(ctx.Int("delay")) * time.Millisecond
 	if strategy == "maximize_empty" {
-		delay := time.Duration(ctx.Int("delay")) * time.Millisecond
 		t := ai.Traverser{
 			GetRating: rating.GetRatingMaximizeEmpty,
 			MaxDepth:  4,
 		}
 		player = players.NewAIPlayer(delay, t)
 	} else if strategy == "edge_lover" {
-		delay := time.Duration(ctx.Int("delay")) * time.Millisecond
 		t := ai.Traverser{
 			GetRating: rating.GetRatingEdgeLover,
 			MaxDepth:  4,
 		}
 		player = players.NewAIPlayer(delay, t)
 	} else if strategy == "maximize_score" {
-		delay := time.Duration(ctx.Int("delay")) * time.Millisecond
 		t := ai.Traverser{
 			GetRating: rating.GetRatingMaximizeScore,
 			MaxDepth:  4,

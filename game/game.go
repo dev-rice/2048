@@ -11,13 +11,12 @@ import (
 // Ideas for more metrics:
 // 		number of up, left, right, and down moves
 //		longest time spent moving
-//		highest tile
-//
 
 type GameMetrics struct {
 	MovesMade          int64
 	Score              int64
 	ElapsedTimeSeconds float64
+	BiggestTile        int64
 }
 
 type printer interface {
@@ -37,14 +36,16 @@ func New() Game {
 	}
 }
 
-func (g Game) Play(player players.Player, printer printer) (stats GameMetrics) {
+func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics) {
 	gameBoard := g.newBoardFunc()
 	gameBoard = g.placeNewTileFunc(gameBoard)
 	gameBoard = g.placeNewTileFunc(gameBoard)
 
 	start := time.Now()
 	defer func() {
-		stats.ElapsedTimeSeconds = time.Since(start).Seconds()
+		metrics.ElapsedTimeSeconds = time.Since(start).Seconds()
+		// should do this somewhere else
+		metrics.BiggestTile = getBiggestTile(gameBoard)
 	}()
 
 	didMove := false
@@ -55,7 +56,7 @@ func (g Game) Play(player players.Player, printer printer) (stats GameMetrics) {
 		}
 
 		printer.ClearScreen()
-		printer.Printf("Score: %v\n", stats.Score)
+		printer.Printf("Score: %v\n", metrics.Score)
 		printer.Printf("%s\n\n", board.NewStringer(gameBoard))
 
 		if board.AreMovesLeft(gameBoard) {
@@ -78,11 +79,11 @@ func (g Game) Play(player players.Player, printer printer) (stats GameMetrics) {
 				break
 			case actions.Quit:
 				printer.Printf("Quitting...\n")
-				return stats
+				return metrics
 			}
 			if err == nil {
-				stats.MovesMade += 1
-				stats.Score += scoreAdd
+				metrics.MovesMade += 1
+				metrics.Score += scoreAdd
 				didMove = true
 			}
 		} else {
@@ -90,5 +91,17 @@ func (g Game) Play(player players.Player, printer printer) (stats GameMetrics) {
 			break
 		}
 	}
-	return stats
+	return metrics
+}
+
+func getBiggestTile(b [][]int64) int64 {
+	biggest := int64(0)
+	for y := 0; y < len(b); y++ {
+		for x := 0; x < len(b[0]); x++ {
+			if b[y][x] > biggest {
+				biggest = b[y][x]
+			}
+		}
+	}
+	return biggest
 }

@@ -76,6 +76,7 @@ func TestPlayWithNoMoves(t *testing.T) {
 	wg.Wait()
 
 	assert.Equal(t, int64(0), metrics.MovesMade)
+	assert.Equal(t, int64(0), metrics.Score)
 	assert.Equal(t, 1, printer.ClearScreenCall.Times)
 	assert.Equal(t, 3, printer.PrintfCall.Times)
 }
@@ -111,6 +112,7 @@ func TestPlayWithOneMove(t *testing.T) {
 
 	assert.Equal(t, int64(1), metrics.MovesMade)
 	assert.Equal(t, int64(0), metrics.Score)
+	assert.Equal(t, int64(2), metrics.BiggestTile)
 	assert.Equal(t, 2, printer.ClearScreenCall.Times)
 	assert.Equal(t, 5, printer.PrintfCall.Times)
 }
@@ -120,14 +122,16 @@ func TestPlayWithOneMoveWithScore(t *testing.T) {
 	printer := &mockPrinter{}
 
 	testGame := Game{
-		newBoardFunc: board.NewEmptyBoard,
-		placeNewTileFunc: func([][]int64) [][]int64 {
+		newBoardFunc: func() [][]int64 {
 			return [][]int64{
 				{0, 0, 0, 0},
-				{0, 32, 0, 0},
-				{0, 32, 0, 0},
+				{0, 32, 0, 2},
+				{0, 32, 0, 2},
 				{0, 0, 0, 0},
 			}
+		},
+		placeNewTileFunc: func(b [][]int64) [][]int64 {
+			return b
 		},
 	}
 	var metrics GameMetrics
@@ -145,7 +149,8 @@ func TestPlayWithOneMoveWithScore(t *testing.T) {
 	wg.Wait()
 
 	assert.Equal(t, int64(1), metrics.MovesMade)
-	assert.Equal(t, int64(64), metrics.Score)
+	assert.Equal(t, int64(68), metrics.Score)
+	assert.Equal(t, int64(64), metrics.BiggestTile)
 	assert.Equal(t, 2, printer.ClearScreenCall.Times)
 	assert.Equal(t, 5, printer.PrintfCall.Times)
 }
@@ -187,6 +192,7 @@ func TestPlayWithFiveMoves(t *testing.T) {
 
 	assert.Equal(t, int64(5), metrics.MovesMade)
 	assert.Equal(t, int64(0), metrics.Score)
+	assert.Equal(t, int64(2), metrics.BiggestTile)
 	assert.Equal(t, 6, printer.ClearScreenCall.Times)
 	assert.Equal(t, 13, printer.PrintfCall.Times)
 }
