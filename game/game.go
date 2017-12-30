@@ -6,6 +6,7 @@ import (
 	"github.com/donutmonger/2048/actions"
 	"github.com/donutmonger/2048/board"
 	"github.com/donutmonger/2048/players"
+	"github.com/pkg/errors"
 )
 
 // Ideas for more metrics:
@@ -80,6 +81,9 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 			case actions.Quit:
 				printer.Printf("Quitting...\n")
 				return metrics
+			default:
+				err = errors.New("Unknown move")
+				break
 			}
 			if err == nil {
 				metrics.MovesMade += 1
