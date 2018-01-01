@@ -20,6 +20,19 @@ func NewEmptyBoard() [][]int64 {
 	}
 }
 
+func NewStartingBoard() [][]int64 {
+	rand.Seed(time.Now().UnixNano())
+	b := [][]int64{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	}
+	b = PlaceRandomTile(b)
+	b = PlaceRandomTile(b)
+	return b
+}
+
 // No tests for this OH GODDDD!
 func PlaceRandomTile(board [][]int64) [][]int64 {
 	if boardIsFull(board) {

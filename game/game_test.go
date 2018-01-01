@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/donutmonger/2048/actions"
-	"github.com/donutmonger/2048/board"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -86,14 +85,16 @@ func TestPlayWithOneMove(t *testing.T) {
 	printer := &mockPrinter{}
 
 	testGame := Game{
-		newBoardFunc: board.NewEmptyBoard,
-		placeNewTileFunc: func([][]int64) [][]int64 {
+		NewBoardFunc: func() [][]int64 {
 			return [][]int64{
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 2},
 			}
+		},
+		placeNewTileFunc: func(b [][]int64) [][]int64 {
+			return b
 		},
 	}
 	var metrics GameMetrics
@@ -122,7 +123,7 @@ func TestPlayWithOneMoveWithScore(t *testing.T) {
 	printer := &mockPrinter{}
 
 	testGame := Game{
-		newBoardFunc: func() [][]int64 {
+		NewBoardFunc: func() [][]int64 {
 			return [][]int64{
 				{0, 0, 0, 0},
 				{0, 32, 0, 2},
@@ -160,7 +161,7 @@ func TestPlayWithFiveMoves(t *testing.T) {
 	printer := &mockPrinter{}
 
 	testGame := Game{
-		newBoardFunc: func() [][]int64 {
+		NewBoardFunc: func() [][]int64 {
 			return [][]int64{
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},

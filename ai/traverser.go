@@ -111,3 +111,5 @@ func bestNodeRating(nodes ...*Node) uint64 {
 	}
 	return best
 }
+
+//

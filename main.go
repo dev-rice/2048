@@ -32,7 +32,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "strategy",
-					Usage: "Changes the ai strategy. Choose from [maximize_empty, maximize_score, edge_lover, random]",
+					Usage: "Changes the ai strategy. Choose from [maximize_empty, maximize_score, edge_lover, monte_carlo, random]",
 					Value: "maximize_empty",
 				},
 				cli.BoolFlag{
@@ -109,6 +109,8 @@ func aiPlay(ctx *cli.Context) error {
 			MaxDepth:  4,
 		}
 		player = players.NewAIPlayer(delay, t)
+	} else if strategy == "monte_carlo" {
+		player = players.NewMonteCarloPlayer()
 	} else if strategy == "random" {
 		player = players.NewRandomPlayer()
 	} else {

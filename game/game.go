@@ -5,7 +5,6 @@ import (
 
 	"github.com/donutmonger/2048/actions"
 	"github.com/donutmonger/2048/board"
-	"github.com/donutmonger/2048/players"
 	"github.com/pkg/errors"
 )
 
@@ -25,22 +24,24 @@ type printer interface {
 	ClearScreen()
 }
 
+type actionGetter interface {
+	GetAction(gameBoard [][]int64) actions.Action
+}
+
 type Game struct {
-	newBoardFunc     func() [][]int64
+	NewBoardFunc     func() [][]int64
 	placeNewTileFunc func(board [][]int64) [][]int64
 }
 
 func New() Game {
 	return Game{
-		newBoardFunc:     board.NewEmptyBoard,
+		NewBoardFunc:     board.NewStartingBoard,
 		placeNewTileFunc: board.PlaceRandomTile,
 	}
 }
 
-func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics) {
-	gameBoard := g.newBoardFunc()
-	gameBoard = g.placeNewTileFunc(gameBoard)
-	gameBoard = g.placeNewTileFunc(gameBoard)
+func (g Game) Play(player actionGetter, printer printer) (metrics GameMetrics) {
+	gameBoard := g.NewBoardFunc()
 
 	start := time.Now()
 	defer func() {
