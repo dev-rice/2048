@@ -7,6 +7,7 @@ import (
 	"errors"
 	"reflect"
 
+	"math"
 	"time"
 )
 
@@ -57,6 +58,8 @@ func boardIsFull(board [][]int64) bool {
 }
 
 func AreMovesLeft(board [][]int64) bool {
+	//boardCompressed := boardToInt64(board)
+
 	size := len(board)
 	for x := 0; x < size; x++ {
 		for y := 0; y < size; y++ {
@@ -92,6 +95,29 @@ func AreMovesLeft(board [][]int64) bool {
 	}
 
 	return false
+}
+
+func boardToInt64(board [][]int64) int64 {
+	// compressedBoard board is int64 where each 4 bytes is a tile. Tile value is calculated as 2^(4 byte tile val)
+	// it is filled horizontally then vertically strating from the top and moving right
+
+	size := len(board)
+
+	var compressedBoard int64
+	for x := 0; x < size; x++ {
+		for y := 0; y < size; y++ {
+			tileValue := board[y][x]
+			var compressedValue int8
+			if tileValue == 0 {
+				compressedValue = 0
+			} else {
+				compressedValue = int8(math.Log2(float64(tileValue)))
+			}
+			shiftAmount := uint((size-1-x)*4 + (size-1-y)*16)
+			compressedBoard = compressedBoard | (int64(compressedValue) << shiftAmount)
+		}
+	}
+	return compressedBoard
 }
 
 func MoveRight(board [][]int64) ([][]int64, int64, error) {

@@ -6,6 +6,36 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestBoardToInt64(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	}
+	assert.Equal(t, int64(0x1000000000000000), boardToInt64(b))
+}
+
+func TestBoardToInt64_2(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 8},
+	}
+	assert.Equal(t, int64(0x1000000000000003), boardToInt64(b))
+}
+
+func TestBoardToInt64_3(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 256, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 8},
+	}
+	assert.Equal(t, int64(0x1000008000000003), boardToInt64(b))
+}
+
 func TestNewEmptyBoardReturns4x4OfZeros(t *testing.T) {
 	expectedBoard := [][]int64{
 		{0, 0, 0, 0},
