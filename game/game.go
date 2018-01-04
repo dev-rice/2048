@@ -59,7 +59,7 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 		printer.Printf("Score: %v\n", metrics.Score)
 		printer.Printf("%s\n\n", board.NewStringer(gameBoard))
 
-		if board.AreMovesLeft(gameBoard) {
+		if board.AreMovesLeft(board.CompressBoardGrid(gameBoard)) {
 			action := player.GetAction(gameBoard)
 
 			var scoreAdd int64

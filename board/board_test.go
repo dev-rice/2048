@@ -6,36 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBoardToInt64(t *testing.T) {
-	b := [][]int64{
-		{2, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-	}
-	assert.Equal(t, int64(0x1000000000000000), boardToInt64(b))
-}
-
-func TestBoardToInt64_2(t *testing.T) {
-	b := [][]int64{
-		{2, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 8},
-	}
-	assert.Equal(t, int64(0x1000000000000003), boardToInt64(b))
-}
-
-func TestBoardToInt64_3(t *testing.T) {
-	b := [][]int64{
-		{2, 0, 0, 0},
-		{0, 0, 256, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 8},
-	}
-	assert.Equal(t, int64(0x1000008000000003), boardToInt64(b))
-}
-
 func TestNewEmptyBoardReturns4x4OfZeros(t *testing.T) {
 	expectedBoard := [][]int64{
 		{0, 0, 0, 0},
@@ -579,6 +549,36 @@ func TestMoveUpWithNoChangesReturnsError(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestBoardToInt64(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	}
+	assert.Equal(t, int64(0x1000000000000000), CompressBoardGrid(b))
+}
+
+func TestBoardToInt64_2(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 8},
+	}
+	assert.Equal(t, int64(0x1000000000000003), CompressBoardGrid(b))
+}
+
+func TestBoardToInt64_3(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 256, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 8},
+	}
+	assert.Equal(t, int64(0x1000008000000003), CompressBoardGrid(b))
+}
+
 func TestAreMovesLeftReturnsTrueForEmptyBoard(t *testing.T) {
 	board := [][]int64{
 		{0, 0, 0, 0},
@@ -587,7 +587,9 @@ func TestAreMovesLeftReturnsTrueForEmptyBoard(t *testing.T) {
 		{0, 0, 0, 0},
 	}
 
-	assert.True(t, AreMovesLeft(board))
+	compressedBoard := CompressBoardGrid(board)
+
+	assert.True(t, AreMovesLeft(compressedBoard))
 }
 
 func TestAreMovesLeftReturnsFalseForFullStaggeredBoard(t *testing.T) {
@@ -598,7 +600,34 @@ func TestAreMovesLeftReturnsFalseForFullStaggeredBoard(t *testing.T) {
 		{4, 2, 4, 2},
 	}
 
-	assert.False(t, AreMovesLeft(board))
+	compressedBoard := CompressBoardGrid(board)
+
+	assert.False(t, AreMovesLeft(compressedBoard))
+}
+
+func TestAreMovesLeftReturnsTrueForFullVerticallyStripedBoard(t *testing.T) {
+	board := [][]int64{
+		{4, 2, 4, 2},
+		{4, 2, 4, 2},
+		{4, 2, 4, 2},
+		{4, 2, 4, 2},
+	}
+	compressedBoard := CompressBoardGrid(board)
+
+	assert.True(t, AreMovesLeft(compressedBoard))
+}
+
+func TestAreMovesLeftReturnsTrueForFullBoardSinglePair(t *testing.T) {
+	board := [][]int64{
+		{8, 2, 8, 2},
+		{4, 8, 4, 8},
+		{8, 2, 8, 2},
+		{4, 8, 4, 2},
+	}
+
+	compressedBoard := CompressBoardGrid(board)
+
+	assert.True(t, AreMovesLeft(compressedBoard))
 }
 
 func TestAreMovesLeftReturnsTrueForStaggeredBoardWithOneEmpty(t *testing.T) {
@@ -609,5 +638,7 @@ func TestAreMovesLeftReturnsTrueForStaggeredBoardWithOneEmpty(t *testing.T) {
 		{4, 2, 4, 2},
 	}
 
-	assert.True(t, AreMovesLeft(board))
+	compressedBoard := CompressBoardGrid(board)
+
+	assert.True(t, AreMovesLeft(compressedBoard))
 }

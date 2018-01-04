@@ -57,39 +57,37 @@ func boardIsFull(board [][]int64) bool {
 	return true
 }
 
-func AreMovesLeft(board [][]int64) bool {
-	//boardCompressed := boardToInt64(board)
+// Ugly but way faster than previous version
+//pkg: github.com/donutmonger/2048/board
+//BenchmarkAreMovesLeft-8             	50000000	        36.4 ns/op
+//BenchmarkAreMovesLeftCompressed-8   	1000000000	         2.28 ns/op
+func AreMovesLeft(boardCompressed int64) bool {
+	for rowNum := 0; rowNum < 4; rowNum++ {
+		rowShift := uint((3 - rowNum) * 16)
 
-	size := len(board)
-	for x := 0; x < size; x++ {
-		for y := 0; y < size; y++ {
-			current := board[y][x]
-			if current == 0 {
+		row := boardCompressed >> uint(rowShift) & 0xffff
+
+		// Check for any zeros
+		if (row&0xf000 == 0) || (row&0x0f00 == 0) || (row&0x00f0 == 0) || (row&0x000f == 0) {
+			return true
+		}
+
+		// Check if next tile in row is equal to current
+		// (Checking if any tile pairs match)
+		tilePair1 := row >> uint(8)
+		tilePair2 := row >> uint(4) & 0xff
+		tilePair3 := row & 0xff
+
+		if (tilePair1&0xf0 == tilePair1&0x0f) || (tilePair2&0xf0 == tilePair2&0x0f) || (tilePair3&0xf0 == tilePair3&0x0f) {
+			return true
+		}
+
+		// Check if tile in next row is equal (for all but last row)
+		if rowNum < 3 {
+			nextRowShift := uint((3 - (rowNum + 1)) * 16)
+			nextRow := boardCompressed << uint(nextRowShift) & 0xffff
+			if (row&0xf000 == nextRow&0xf000) || (row&0x0f00 == nextRow&0x0f00) || (row&0x00f0 == nextRow&0x00f0) || (row&0x000f == nextRow&0x000f) {
 				return true
-			}
-			if y > 0 {
-				above := board[y-1][x]
-				if current == above {
-					return true
-				}
-			}
-			if y < size-1 {
-				below := board[y+1][x]
-				if current == below {
-					return true
-				}
-			}
-			if x > 0 {
-				left := board[y][x-1]
-				if current == left {
-					return true
-				}
-			}
-			if x < size-1 {
-				right := board[y][x+1]
-				if current == right {
-					return true
-				}
 			}
 		}
 	}
@@ -97,9 +95,9 @@ func AreMovesLeft(board [][]int64) bool {
 	return false
 }
 
-func boardToInt64(board [][]int64) int64 {
+func CompressBoardGrid(board [][]int64) int64 {
 	// compressedBoard board is int64 where each 4 bytes is a tile. Tile value is calculated as 2^(4 byte tile val)
-	// it is filled horizontally then vertically strating from the top and moving right
+	// it is filled horizontally then vertically strating from the top and moving right. Most significant 4 bits of compressedBoard are log(2,tile_0,0), second most significant 4 bits are log(2,tile_1,0), etc.
 
 	size := len(board)
 
