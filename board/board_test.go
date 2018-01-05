@@ -549,7 +549,19 @@ func TestMoveUpWithNoChangesReturnsError(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestBoardToInt64(t *testing.T) {
+func TestUncompressBoard(t *testing.T) {
+	compressedBoard := int64(0x0044003200110211)
+
+	expected := [][]int64{
+		{0, 0, 16, 16},
+		{0, 0, 8, 4},
+		{0, 0, 2, 2},
+		{0, 4, 2, 2},
+	}
+	assert.Equal(t, expected, UncompressBoard(compressedBoard))
+}
+
+func TestCompressBoardGrid(t *testing.T) {
 	b := [][]int64{
 		{2, 0, 0, 0},
 		{0, 0, 0, 0},
@@ -559,7 +571,7 @@ func TestBoardToInt64(t *testing.T) {
 	assert.Equal(t, int64(0x1000000000000000), CompressBoardGrid(b))
 }
 
-func TestBoardToInt64_2(t *testing.T) {
+func TestCompressBoardGrid_2(t *testing.T) {
 	b := [][]int64{
 		{2, 0, 0, 0},
 		{0, 0, 0, 0},
@@ -569,7 +581,7 @@ func TestBoardToInt64_2(t *testing.T) {
 	assert.Equal(t, int64(0x1000000000000003), CompressBoardGrid(b))
 }
 
-func TestBoardToInt64_3(t *testing.T) {
+func TestCompressBoardGrid_3(t *testing.T) {
 	b := [][]int64{
 		{2, 0, 0, 0},
 		{0, 0, 256, 0},
@@ -641,4 +653,43 @@ func TestAreMovesLeftReturnsTrueForStaggeredBoardWithOneEmpty(t *testing.T) {
 	compressedBoard := CompressBoardGrid(board)
 
 	assert.True(t, AreMovesLeft(compressedBoard))
+}
+
+func BenchmarkCompressBoardGrid(b *testing.B) {
+	board := [][]int64{
+		{0, 4, 2, 4},
+		{4, 2, 4, 2},
+		{2, 4, 2, 4},
+		{4, 2, 4, 2},
+	}
+
+	for n := 0; n < b.N; n++ {
+		CompressBoardGrid(board)
+	}
+}
+
+func BenchmarkUncompressBoard(b *testing.B) {
+	board := [][]int64{
+		{0, 4, 2, 4},
+		{4, 2, 4, 2},
+		{2, 4, 2, 4},
+		{4, 2, 4, 2},
+	}
+	compressedBoard := CompressBoardGrid(board)
+	for n := 0; n < b.N; n++ {
+		UncompressBoard(compressedBoard)
+	}
+}
+
+func BenchmarkAreMovesLeft(b *testing.B) {
+	board := [][]int64{
+		{2, 4, 2, 4},
+		{4, 2, 4, 2},
+		{2, 4, 2, 4},
+		{4, 2, 4, 0},
+	}
+	compressedBoard := CompressBoardGrid(board)
+	for n := 0; n < b.N; n++ {
+		AreMovesLeft(compressedBoard)
+	}
 }

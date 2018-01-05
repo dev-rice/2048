@@ -7,7 +7,6 @@ import (
 	"errors"
 	"reflect"
 
-	"math"
 	"time"
 )
 
@@ -105,17 +104,50 @@ func CompressBoardGrid(board [][]int64) int64 {
 	for x := 0; x < size; x++ {
 		for y := 0; y < size; y++ {
 			tileValue := board[y][x]
-			var compressedValue int8
+			var compressedValue uint8
 			if tileValue == 0 {
 				compressedValue = 0
 			} else {
-				compressedValue = int8(math.Log2(float64(tileValue)))
+				compressedValue = efficientLog2(tileValue)
 			}
 			shiftAmount := uint((size-1-x)*4 + (size-1-y)*16)
 			compressedBoard = compressedBoard | (int64(compressedValue) << shiftAmount)
 		}
 	}
 	return compressedBoard
+}
+
+// Only works for int64 that is a power of 2
+func efficientLog2(v int64) (count uint8) {
+	count = 1
+	for v > 2 {
+		v = v >> 1
+		count++
+	}
+	return count
+}
+
+func UncompressBoard(compressedBoard int64) [][]int64 {
+	boardGrid := [][]int64{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	}
+
+	for x := 0; x < 4; x++ {
+		for y := 0; y < 4; y++ {
+			shiftAmount := uint((3-x)*4 + (3-y)*16)
+			compressedValue := (compressedBoard >> shiftAmount) & 0xf
+			if compressedValue == 0 {
+				boardGrid[y][x] = 0
+			} else {
+				boardGrid[y][x] = int64(2 << uint(compressedValue-1))
+			}
+		}
+	}
+
+	return boardGrid
 }
 
 func MoveRight(board [][]int64) ([][]int64, int64, error) {
