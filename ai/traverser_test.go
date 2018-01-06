@@ -52,8 +52,8 @@ func TestGetBestMoveRight(t *testing.T) {
 
 	traverser := Traverser{
 		GetRating: func(b [][]int64) uint64 {
-			rightBoard, _, _ := board.MoveRight(initialBoard)
-			if areBoardsSame(b, rightBoard) {
+			rightBoard, _, _ := board.MoveRight(board.CompressBoardGrid(initialBoard))
+			if areBoardsSame(b, board.UncompressBoard(rightBoard)) {
 				return 100
 			} else {
 				return 0
@@ -143,7 +143,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndLeftAndRightMovesDown(t *testing.
 	_, _, err = board.MoveLeft(initialBoard)
 	assert.NotNil(t, err)
 
-	_, _, err = board.MoveRight(initialBoard)
+	_, _, err = board.MoveRight(board.CompressBoardGrid(initialBoard))
 	assert.NotNil(t, err)
 
 	traverser := Traverser{
@@ -170,7 +170,7 @@ func TestGetBestMoveAllMovesSameScoreErrorDownAndLeftAndRightMovesUp(t *testing.
 	_, _, err = board.MoveLeft(initialBoard)
 	assert.NotNil(t, err)
 
-	_, _, err = board.MoveRight(initialBoard)
+	_, _, err = board.MoveRight(board.CompressBoardGrid(initialBoard))
 	assert.NotNil(t, err)
 
 	traverser := Traverser{
@@ -197,7 +197,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndRightMovesLeft(t *testing.
 	_, _, err = board.MoveDown(initialBoard)
 	assert.NotNil(t, err)
 
-	_, _, err = board.MoveRight(initialBoard)
+	_, _, err = board.MoveRight(board.CompressBoardGrid(initialBoard))
 	assert.NotNil(t, err)
 
 	traverser := Traverser{

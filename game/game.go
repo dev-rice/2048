@@ -59,6 +59,7 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 		printer.Printf("Score: %v\n", metrics.Score)
 		printer.Printf("%s\n\n", board.NewStringer(gameBoard))
 
+		compressedBoard := board.CompressBoardGrid(gameBoard)
 		if board.AreMovesLeft(board.CompressBoardGrid(gameBoard)) {
 			action := player.GetAction(gameBoard)
 
@@ -75,7 +76,8 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 				gameBoard, scoreAdd, err = board.MoveLeft(gameBoard)
 				break
 			case actions.MoveRight:
-				gameBoard, scoreAdd, err = board.MoveRight(gameBoard)
+				compressedBoard, scoreAdd, err = board.MoveRight(compressedBoard)
+				gameBoard = board.UncompressBoard(compressedBoard)
 				break
 			case actions.Quit:
 				printer.Printf("Quitting...\n")

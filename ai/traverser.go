@@ -89,11 +89,11 @@ func buildRoot(b [][]int64, getRating ratingFunc, depth int) *Node {
 		n.left = buildRoot(leftBoard, getRating, depth-1)
 	}
 
-	rightBoard, _, err := board.MoveRight(b)
+	rightBoardCompressed, _, err := board.MoveRight(board.CompressBoardGrid(b))
 	if err != nil {
 		n.right = nil
 	} else {
-		n.right = buildRoot(rightBoard, getRating, depth-1)
+		n.right = buildRoot(board.UncompressBoard(rightBoardCompressed), getRating, depth-1)
 	}
 
 	n.rating = bestNodeRating(n.up, n.down, n.left, n.right)

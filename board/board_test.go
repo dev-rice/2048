@@ -24,9 +24,10 @@ func TestMoveRightWithEmptyReturnsEmptyAndError(t *testing.T) {
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 	}
+	compressedInitial := CompressBoardGrid(initialBoard)
 
-	actualBoard, score, err := MoveRight(initialBoard)
-	assert.Equal(t, initialBoard, actualBoard)
+	actualBoard, score, err := MoveRight(compressedInitial)
+	assert.Equal(t, compressedInitial, actualBoard)
 	assert.Equal(t, int64(0), score)
 	assert.NotNil(t, err)
 }
@@ -46,8 +47,11 @@ func TestMoveRightOneTwo(t *testing.T) {
 		{0, 0, 0, 2},
 	}
 
-	actualBoard, score, err := MoveRight(initialBoard)
-	assert.Equal(t, expectedBoard, actualBoard)
+	compressedInitial := CompressBoardGrid(initialBoard)
+	compressedExpected := CompressBoardGrid(expectedBoard)
+
+	actualBoard, score, err := MoveRight(compressedInitial)
+	assert.Equal(t, compressedExpected, actualBoard)
 	assert.Equal(t, int64(0), score)
 	assert.Nil(t, err)
 }
@@ -67,8 +71,11 @@ func TestMoveRightTwoTwos(t *testing.T) {
 		{0, 0, 0, 4},
 	}
 
-	actualBoard, score, err := MoveRight(initialBoard)
-	assert.Equal(t, expectedBoard, actualBoard)
+	compressedInitial := CompressBoardGrid(initialBoard)
+	compressedExpected := CompressBoardGrid(expectedBoard)
+
+	actualBoard, score, err := MoveRight(compressedInitial)
+	assert.Equal(t, compressedExpected, actualBoard)
 	assert.Equal(t, int64(4), score)
 	assert.Nil(t, err)
 }
@@ -88,8 +95,11 @@ func TestMoveRightThreeTwos(t *testing.T) {
 		{0, 0, 2, 4},
 	}
 
-	actualBoard, score, err := MoveRight(initialBoard)
-	assert.Equal(t, expectedBoard, actualBoard)
+	compressedInitial := CompressBoardGrid(initialBoard)
+	compressedExpected := CompressBoardGrid(expectedBoard)
+
+	actualBoard, score, err := MoveRight(compressedInitial)
+	assert.Equal(t, compressedExpected, actualBoard)
 	assert.Equal(t, int64(4), score)
 	assert.Nil(t, err)
 }
@@ -109,8 +119,11 @@ func TestMoveRightFourTwos(t *testing.T) {
 		{0, 0, 4, 4},
 	}
 
-	actualBoard, score, err := MoveRight(initialBoard)
-	assert.Equal(t, expectedBoard, actualBoard)
+	compressedInitial := CompressBoardGrid(initialBoard)
+	compressedExpected := CompressBoardGrid(expectedBoard)
+
+	actualBoard, score, err := MoveRight(compressedInitial)
+	assert.Equal(t, compressedExpected, actualBoard)
 	assert.Equal(t, int64(8), score)
 	assert.Nil(t, err)
 }
@@ -130,8 +143,11 @@ func TestMoveRightMultipleRows(t *testing.T) {
 		{0, 2, 4, 32},
 	}
 
-	actualBoard, score, err := MoveRight(initialBoard)
-	assert.Equal(t, expectedBoard, actualBoard)
+	compressedInitial := CompressBoardGrid(initialBoard)
+	compressedExpected := CompressBoardGrid(expectedBoard)
+
+	actualBoard, score, err := MoveRight(compressedInitial)
+	assert.Equal(t, compressedExpected, actualBoard)
 	assert.Equal(t, int64(28), score)
 	assert.Nil(t, err)
 }
@@ -143,9 +159,10 @@ func TestMoveRightWithNoChangesReturnsError(t *testing.T) {
 		{0, 0, 4, 8},
 		{0, 16, 2, 32},
 	}
+	compressedInitial := CompressBoardGrid(initialBoard)
 
-	actualBoard, score, err := MoveRight(initialBoard)
-	assert.Equal(t, initialBoard, actualBoard)
+	actualBoard, score, err := MoveRight(compressedInitial)
+	assert.Equal(t, compressedInitial, actualBoard)
 	assert.Equal(t, int64(0), score)
 	assert.NotNil(t, err)
 }
@@ -561,6 +578,19 @@ func TestUncompressBoard(t *testing.T) {
 	assert.Equal(t, expected, UncompressBoard(compressedBoard))
 }
 
+func TestUncompressAndCompressBoardAreInverse(t *testing.T) {
+	compressedBoard := int64(0x0044003200110211)
+	expected := [][]int64{
+		{0, 0, 16, 16},
+		{0, 0, 8, 4},
+		{0, 0, 2, 2},
+		{0, 4, 2, 2},
+	}
+	uncompressedBoard := UncompressBoard(compressedBoard)
+	assert.Equal(t, expected, uncompressedBoard)
+	assert.Equal(t, compressedBoard, CompressBoardGrid(uncompressedBoard))
+}
+
 func TestCompressBoardGrid(t *testing.T) {
 	b := [][]int64{
 		{2, 0, 0, 0},
@@ -653,43 +683,4 @@ func TestAreMovesLeftReturnsTrueForStaggeredBoardWithOneEmpty(t *testing.T) {
 	compressedBoard := CompressBoardGrid(board)
 
 	assert.True(t, AreMovesLeft(compressedBoard))
-}
-
-func BenchmarkCompressBoardGrid(b *testing.B) {
-	board := [][]int64{
-		{0, 4, 2, 4},
-		{4, 2, 4, 2},
-		{2, 4, 2, 4},
-		{4, 2, 4, 2},
-	}
-
-	for n := 0; n < b.N; n++ {
-		CompressBoardGrid(board)
-	}
-}
-
-func BenchmarkUncompressBoard(b *testing.B) {
-	board := [][]int64{
-		{0, 4, 2, 4},
-		{4, 2, 4, 2},
-		{2, 4, 2, 4},
-		{4, 2, 4, 2},
-	}
-	compressedBoard := CompressBoardGrid(board)
-	for n := 0; n < b.N; n++ {
-		UncompressBoard(compressedBoard)
-	}
-}
-
-func BenchmarkAreMovesLeft(b *testing.B) {
-	board := [][]int64{
-		{2, 4, 2, 4},
-		{4, 2, 4, 2},
-		{2, 4, 2, 4},
-		{4, 2, 4, 0},
-	}
-	compressedBoard := CompressBoardGrid(board)
-	for n := 0; n < b.N; n++ {
-		AreMovesLeft(compressedBoard)
-	}
 }

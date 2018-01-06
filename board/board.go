@@ -73,11 +73,11 @@ func AreMovesLeft(boardCompressed int64) bool {
 
 		// Check if next tile in row is equal to current
 		// (Checking if any tile pairs match)
-		tilePair1 := row >> uint(8)
-		tilePair2 := row >> uint(4) & 0xff
-		tilePair3 := row & 0xff
+		tilePair0 := row >> uint(8)
+		tilePair1 := row >> uint(4) & 0xff
+		tilePair2 := row & 0xff
 
-		if (tilePair1&0xf0 == tilePair1&0x0f) || (tilePair2&0xf0 == tilePair2&0x0f) || (tilePair3&0xf0 == tilePair3&0x0f) {
+		if (tilePair0&0xf0 == tilePair0&0x0f) || (tilePair1&0xf0 == tilePair1&0x0f) || (tilePair2&0xf0 == tilePair2&0x0f) {
 			return true
 		}
 
@@ -150,20 +150,91 @@ func UncompressBoard(compressedBoard int64) [][]int64 {
 	return boardGrid
 }
 
-func MoveRight(board [][]int64) ([][]int64, int64, error) {
-	outputBoard := make([][]int64, len(board))
-	var score int64
-	for y := 0; y < len(board); y++ {
-		var scoreAdd int64
-		outputBoard[y], scoreAdd = moveRowRight(board[y])
-		score += scoreAdd
+// Before optimization:
+//   BenchmarkMoveRight-8           	 1000000	      2321 ns/op
+// After optimization:
+//   BenchmarkMoveRight-8   	         50000000	      27.8 ns/op
+func MoveRight(compressedBoard int64) (int64, int64, error) {
+
+	if compressedBoard == 0 {
+		return compressedBoard, 0, errors.New("No move was made")
 	}
 
-	if reflect.DeepEqual(board, outputBoard) {
-		return outputBoard, 0, errors.New("No move was made")
+	// push right (don't merge) step
+	var movedBoard int64
+	var scoreAdd int64
+	for rowNum := 0; rowNum < 4; rowNum++ {
+		rowShift := uint((3 - rowNum) * 16)
+		row := compressedBoard >> uint(rowShift) & 0xffff
+
+		if row == 0x0000 {
+			continue
+		}
+
+		// Remove zeros
+		for row&0x000f == 0 {
+			row = row >> 4
+		}
+
+		if row&0xfff0 != 0 {
+			for row&0x00f0 == 0 {
+				row = ((row & 0xfff0) >> 4) | row&0x000f
+			}
+		}
+
+		if row&0xff00 != 0 {
+			for row&0x0f00 == 0 {
+				row = ((row & 0xff00) >> 4) | row&0x00ff
+			}
+		}
+
+		//Combine pairs
+		tilePairRight := row & 0xff
+		if tilePairRight&0xf0>>4 == tilePairRight&0x0f {
+			newTilePairRight := tilePairRight&0x0f + 1
+			row = row&0xff00 | newTilePairRight
+			scoreAdd += 2 << uint(newTilePairRight-1)
+		}
+
+		tilePairMiddle := (row >> 4) & 0xff
+		if tilePairMiddle != 0 && tilePairMiddle&0xf0>>4 == tilePairMiddle&0x0f {
+			newTilePairMiddle := tilePairMiddle&0x0f + 1
+			row = row&0xf00f | (newTilePairMiddle << 4)
+			scoreAdd += 2 << uint(newTilePairMiddle-1)
+		}
+
+		tilePairLeft := row >> 8
+		if tilePairLeft != 0 && tilePairLeft&0xf0>>4 == tilePairLeft&0x0f {
+			newTilePairLeft := tilePairLeft&0x0f + 1
+			row = row&0x00ff | (newTilePairLeft << 8)
+			scoreAdd += 2 << uint(newTilePairLeft-1)
+		}
+
+		// Remove zeros
+		for row&0x000f == 0 {
+			row = row >> 4
+		}
+
+		if row&0xfff0 != 0 {
+			for row&0x00f0 == 0 {
+				row = ((row & 0xfff0) >> 4) | row&0x000f
+			}
+		}
+
+		if row&0xff00 != 0 {
+			for row&0x0f00 == 0 {
+				row = ((row & 0xff00) >> 4) | row&0x00ff
+			}
+		}
+
+		movedBoard = movedBoard | (row << uint(rowShift))
 	}
 
-	return outputBoard, score, nil
+	if movedBoard == compressedBoard {
+		return movedBoard, 0, errors.New("No move was made")
+	}
+
+	return movedBoard, scoreAdd, nil
 }
 
 func MoveLeft(board [][]int64) ([][]int64, int64, error) {
