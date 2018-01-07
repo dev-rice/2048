@@ -1,6 +1,9 @@
 package rating
 
-func GetRatingEdgeLover(b [][]int64) uint64 {
+import "github.com/donutmonger/2048/board"
+
+func GetRatingEdgeLover(compressed int64) uint64 {
+	b := board.UncompressBoard(compressed)
 	rating := uint64(0)
 	for x := 0; x < len(b); x++ {
 		// Left Edge

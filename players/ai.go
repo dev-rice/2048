@@ -9,7 +9,7 @@ import (
 const noDelay = 0 * time.Second
 
 type bestMoveGetter interface {
-	GetBestMove([][]int64) actions.Action
+	GetBestMove(int64) actions.Action
 }
 
 type AIPlayer struct {
@@ -24,7 +24,7 @@ func NewAIPlayer(delay time.Duration, m bestMoveGetter) AIPlayer {
 	}
 }
 
-func (p AIPlayer) GetAction(gameBoard [][]int64) actions.Action {
+func (p AIPlayer) GetAction(gameBoard int64) actions.Action {
 	if p.delay != noDelay {
 		defer func() { time.Sleep(p.delay) }()
 	}

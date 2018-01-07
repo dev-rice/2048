@@ -43,7 +43,7 @@ func newMockPlayer() mockPlayer {
 	}
 }
 
-func (m mockPlayer) GetAction(b [][]int64) actions.Action {
+func (m mockPlayer) GetAction(b int64) actions.Action {
 	var a actions.Action
 	for {
 		select {

@@ -28,10 +28,10 @@ func (s actionTuples) Less(i, j int) bool {
 	return s[i].score < s[j].score
 }
 
-type ratingFunc func(b [][]int64) uint64
+type ratingFunc func(b int64) uint64
 
-func (t Traverser) GetBestMove(gameBoard [][]int64) actions.Action {
-	r := buildRoot(board.CompressBoardGrid(gameBoard), t.GetRating, t.MaxDepth)
+func (t Traverser) GetBestMove(gameBoard int64) actions.Action {
+	r := buildRoot(gameBoard, t.GetRating, t.MaxDepth)
 
 	a := make([]actionTuple, 0)
 	if r.up != nil {
@@ -62,7 +62,7 @@ type Node struct {
 func buildRoot(b int64, getRating ratingFunc, depth int) *Node {
 	if depth == 0 {
 		return &Node{
-			rating: getRating(board.UncompressBoard(b)),
+			rating: getRating(b),
 		}
 	}
 

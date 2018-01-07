@@ -11,7 +11,6 @@ import (
 // Ideas for more metrics:
 // 		number of up, left, right, and down moves
 //		longest time spent moving
-
 type GameMetrics struct {
 	MovesMade          int64
 	Score              int64
@@ -55,13 +54,12 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 			didMove = false
 		}
 
-		gameBoardGrid := board.UncompressBoard(gameBoard)
 		printer.ClearScreen()
 		printer.Printf("Score: %v\n", metrics.Score)
-		printer.Printf("%s\n\n", board.NewStringer(gameBoardGrid))
+		printer.Printf("%s\n\n", board.NewStringer(board.UncompressBoard(gameBoard)))
 
 		if board.AreMovesLeft(gameBoard) {
-			action := player.GetAction(gameBoardGrid)
+			action := player.GetAction(gameBoard)
 
 			var scoreAdd int64
 			var err error

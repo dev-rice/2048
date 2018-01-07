@@ -55,11 +55,11 @@ func boardIsFull(board [][]int64) bool {
 //pkg: github.com/donutmonger/2048/board
 //BenchmarkAreMovesLeft-8             	50000000	        36.4 ns/op
 //BenchmarkAreMovesLeftCompressed-8   	1000000000	         2.28 ns/op
-func AreMovesLeft(boardCompressed int64) bool {
+func AreMovesLeft(board int64) bool {
 	for rowNum := 0; rowNum < 4; rowNum++ {
 		rowShift := uint((3 - rowNum) * 16)
 
-		row := boardCompressed >> uint(rowShift) & 0xffff
+		row := board >> uint(rowShift) & 0xffff
 
 		// Check for any zeros
 		if (row&0xf000 == 0) || (row&0x0f00 == 0) || (row&0x00f0 == 0) || (row&0x000f == 0) {
@@ -79,7 +79,7 @@ func AreMovesLeft(boardCompressed int64) bool {
 		// Check if tile in next row is equal (for all but last row)
 		if rowNum < 3 {
 			nextRowShift := uint((3 - (rowNum + 1)) * 16)
-			nextRow := boardCompressed << uint(nextRowShift) & 0xffff
+			nextRow := board << uint(nextRowShift) & 0xffff
 			if (row&0xf000 == nextRow&0xf000) || (row&0x0f00 == nextRow&0x0f00) || (row&0x00f0 == nextRow&0x00f0) || (row&0x000f == nextRow&0x000f) {
 				return true
 			}
@@ -242,7 +242,7 @@ func moveRowRightC(row int64) (int64, int64) {
 
 // Before Optimization
 // BenchmarkMoveLeft-8       	  500000	      2582 ns/op
-
+// BenchmarkMoveLeft-8       	50000000	      30.4 ns/op
 func MoveLeft(board int64) (int64, int64, error) {
 	if board == 0 {
 		return board, 0, errors.New("no move was made")
@@ -335,6 +335,7 @@ func moveRowLeftC(row int64) (int64, int64) {
 
 // Before Optimization
 // BenchmarkMoveDown-8       	 1000000	      2640 ns/op
+// BenchmarkMoveDown-8       	50000000	        39.6 ns/op
 func MoveDown(board int64) (int64, int64, error) {
 	if board == 0 {
 		return board, 0, errors.New("no move was made")
@@ -391,6 +392,7 @@ func transposeCompressedBoard(b int64) (t int64) {
 
 // Before Optimization
 // BenchmarkMoveUp-8         	  500000	      2848 ns/op
+// BenchmarkMoveUp-8         	30000000	        41.6 ns/op
 func MoveUp(board int64) (int64, int64, error) {
 	if board == 0 {
 		return board, 0, errors.New("no move was made")
