@@ -1,29 +1,24 @@
 package board
 
 import (
-	"container/list"
 	"math/rand"
 
 	"errors"
-	"reflect"
 
 	"time"
 )
 
-func NewEmptyBoard() [][]int64 {
+func NewEmptyBoard() int64 {
 	rand.Seed(time.Now().UnixNano())
-	return [][]int64{
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-	}
+	return 0
 }
 
 // No tests for this OH GODDDD!
-func PlaceRandomTile(board [][]int64) [][]int64 {
+func PlaceRandomTile(compressed int64) int64 {
+
+	board := UncompressBoard(compressed)
 	if boardIsFull(board) {
-		return board
+		return compressed
 	}
 
 	tileNumber := int64(2)
@@ -37,7 +32,7 @@ func PlaceRandomTile(board [][]int64) [][]int64 {
 		y := rand.Intn(size)
 		if board[x][y] == 0 {
 			board[x][y] = tileNumber
-			return board
+			return CompressBoardGrid(board)
 		}
 	}
 }
@@ -157,276 +152,271 @@ func UncompressBoard(compressedBoard int64) [][]int64 {
 func MoveRight(compressedBoard int64) (int64, int64, error) {
 
 	if compressedBoard == 0 {
-		return compressedBoard, 0, errors.New("No move was made")
+		return compressedBoard, 0, errors.New("no move was made")
 	}
 
-	// push right (don't merge) step
 	var movedBoard int64
 	var scoreAdd int64
 	for rowNum := 0; rowNum < 4; rowNum++ {
 		rowShift := uint((3 - rowNum) * 16)
 		row := compressedBoard >> uint(rowShift) & 0xffff
 
-		if row == 0x0000 {
-			continue
-		}
+		var scoreAddRow int64
+		row, scoreAddRow = moveRowRightC(row)
 
-		// Remove zeros
-		for row&0x000f == 0 {
-			row = row >> 4
-		}
-
-		if row&0xfff0 != 0 {
-			for row&0x00f0 == 0 {
-				row = ((row & 0xfff0) >> 4) | row&0x000f
-			}
-		}
-
-		if row&0xff00 != 0 {
-			for row&0x0f00 == 0 {
-				row = ((row & 0xff00) >> 4) | row&0x00ff
-			}
-		}
-
-		//Combine pairs
-		tilePairRight := row & 0xff
-		if tilePairRight&0xf0>>4 == tilePairRight&0x0f {
-			newTilePairRight := tilePairRight&0x0f + 1
-			row = row&0xff00 | newTilePairRight
-			scoreAdd += 2 << uint(newTilePairRight-1)
-		}
-
-		tilePairMiddle := (row >> 4) & 0xff
-		if tilePairMiddle != 0 && tilePairMiddle&0xf0>>4 == tilePairMiddle&0x0f {
-			newTilePairMiddle := tilePairMiddle&0x0f + 1
-			row = row&0xf00f | (newTilePairMiddle << 4)
-			scoreAdd += 2 << uint(newTilePairMiddle-1)
-		}
-
-		tilePairLeft := row >> 8
-		if tilePairLeft != 0 && tilePairLeft&0xf0>>4 == tilePairLeft&0x0f {
-			newTilePairLeft := tilePairLeft&0x0f + 1
-			row = row&0x00ff | (newTilePairLeft << 8)
-			scoreAdd += 2 << uint(newTilePairLeft-1)
-		}
-
-		// Remove zeros
-		for row&0x000f == 0 {
-			row = row >> 4
-		}
-
-		if row&0xfff0 != 0 {
-			for row&0x00f0 == 0 {
-				row = ((row & 0xfff0) >> 4) | row&0x000f
-			}
-		}
-
-		if row&0xff00 != 0 {
-			for row&0x0f00 == 0 {
-				row = ((row & 0xff00) >> 4) | row&0x00ff
-			}
-		}
-
+		scoreAdd += scoreAddRow
 		movedBoard = movedBoard | (row << uint(rowShift))
 	}
 
 	if movedBoard == compressedBoard {
-		return movedBoard, 0, errors.New("No move was made")
+		return movedBoard, 0, errors.New("no move was made")
 	}
 
 	return movedBoard, scoreAdd, nil
 }
 
-func MoveLeft(board [][]int64) ([][]int64, int64, error) {
-	outputBoard := make([][]int64, len(board))
-	var score int64
-	for y := 0; y < len(board); y++ {
-		var scoreAdd int64
-		outputBoard[y], scoreAdd = moveRowLeft(board[y])
-		score += scoreAdd
+func moveRowRightC(row int64) (int64, int64) {
+	var scoreAdd int64
+	if row == 0x0000 {
+		return row, scoreAdd
 	}
 
-	if reflect.DeepEqual(board, outputBoard) {
-		return outputBoard, 0, errors.New("No move was made")
+	// Remove zeros
+	for row&0x000f == 0 {
+		row = row >> 4
 	}
 
-	return outputBoard, score, nil
+	if row&0xfff0 != 0 {
+		for row&0x00f0 == 0 {
+			row = ((row & 0xfff0) >> 4) | row&0x000f
+		}
+	}
+
+	if row&0xff00 != 0 {
+		for row&0x0f00 == 0 {
+			row = ((row & 0xff00) >> 4) | row&0x00ff
+		}
+	}
+
+	//Combine pairs (go from right to left)
+	tilePairRight := row & 0xff
+	if tilePairRight&0xf0>>4 == tilePairRight&0x0f {
+		newTilePairRight := tilePairRight&0x0f + 1
+		row = row&0xff00 | newTilePairRight
+		scoreAdd += 2 << uint(newTilePairRight-1)
+	}
+
+	tilePairMiddle := (row >> 4) & 0xff
+	if tilePairMiddle != 0 && tilePairMiddle&0xf0>>4 == tilePairMiddle&0x0f {
+		newTilePairMiddle := tilePairMiddle&0x0f + 1
+		row = row&0xf00f | (newTilePairMiddle << 4)
+		scoreAdd += 2 << uint(newTilePairMiddle-1)
+	}
+
+	tilePairLeft := row >> 8
+	if tilePairLeft != 0 && tilePairLeft&0xf0>>4 == tilePairLeft&0x0f {
+		newTilePairLeft := tilePairLeft&0x0f + 1
+		row = row&0x00ff | (newTilePairLeft << 8)
+		scoreAdd += 2 << uint(newTilePairLeft-1)
+	}
+
+	// Remove zeros
+	for row&0x000f == 0 {
+		row = row >> 4
+	}
+
+	if row&0xfff0 != 0 {
+		for row&0x00f0 == 0 {
+			row = ((row & 0xfff0) >> 4) | row&0x000f
+		}
+	}
+
+	if row&0xff00 != 0 {
+		for row&0x0f00 == 0 {
+			row = ((row & 0xff00) >> 4) | row&0x00ff
+		}
+	}
+
+	return row, scoreAdd
 }
 
-func MoveDown(board [][]int64) ([][]int64, int64, error) {
-	outputBoard := make([][]int64, len(board))
-	var score int64
-	for y := 0; y < len(board); y++ {
-		outputBoard[y] = make([]int64, len(board))
+// Before Optimization
+// BenchmarkMoveLeft-8       	  500000	      2582 ns/op
+
+func MoveLeft(board int64) (int64, int64, error) {
+	if board == 0 {
+		return board, 0, errors.New("no move was made")
 	}
 
-	for x := 0; x < len(board[0]); x++ {
-		col := make([]int64, 0)
-		for y := 0; y < len(board); y++ {
-			col = append(col, board[y][x])
-		}
-		col, scoreAdd := moveRowRight(col)
-		score += scoreAdd
-		for y := 0; y < len(board); y++ {
-			outputBoard[y][x] = col[y]
-		}
+	var movedBoard int64
+	var scoreAdd int64
+	for rowNum := 0; rowNum < 4; rowNum++ {
+		rowShift := uint((3 - rowNum) * 16)
+		row := board >> uint(rowShift) & 0xffff
+
+		var scoreAddRow int64
+		row, scoreAddRow = moveRowLeftC(row)
+
+		scoreAdd += scoreAddRow
+		movedBoard = movedBoard | (row << uint(rowShift))
 	}
 
-	if reflect.DeepEqual(board, outputBoard) {
-		return outputBoard, 0, errors.New("No move was made")
+	if movedBoard == board {
+		return board, 0, errors.New("no move was made")
 	}
 
-	return outputBoard, score, nil
+	return movedBoard, scoreAdd, nil
 }
 
-func MoveUp(board [][]int64) ([][]int64, int64, error) {
-	outputBoard := make([][]int64, len(board))
-	var score int64
-	for y := 0; y < len(board); y++ {
-		outputBoard[y] = make([]int64, len(board))
+func moveRowLeftC(row int64) (int64, int64) {
+	var scoreAdd int64
+	if row == 0x0000 {
+		return row, 0
 	}
 
-	for x := 0; x < len(board[0]); x++ {
-		col := make([]int64, 0)
-		for y := 0; y < len(board); y++ {
-			col = append(col, board[y][x])
-		}
-		col, scoreAdd := moveRowLeft(col)
-		score += scoreAdd
-		for y := 0; y < len(board); y++ {
-			outputBoard[y][x] = col[y]
+	// Remove zeros
+	for row&0xf000 == 0 {
+		row = row << 4
+	}
+
+	if row&0x0fff != 0 {
+		for row&0x0f00 == 0 {
+			row = ((row & 0x0fff) << 4) | row&0xf000
 		}
 	}
 
-	if reflect.DeepEqual(board, outputBoard) {
-		return outputBoard, 0, errors.New("No move was made")
+	if row&0x00ff != 0 {
+		for row&0x00f0 == 0 {
+			row = ((row & 0x00ff) << 4) | row&0xff00
+		}
 	}
 
-	return outputBoard, score, nil
+	//Combine pairs (go from left to right)
+	tilePairLeft := row >> 8
+	if tilePairLeft&0xf0>>4 == tilePairLeft&0x0f {
+		newTilePairLeft := (tilePairLeft&0x0f + 1) << 4
+		row = row&0x00ff | newTilePairLeft<<8
+		scoreAdd += 2 << uint((newTilePairLeft>>4)-1)
+	}
+
+	tilePairMiddle := (row >> 4) & 0xff
+	if tilePairMiddle != 0 && tilePairMiddle&0xf0>>4 == tilePairMiddle&0x0f {
+		newTilePairMiddle := (tilePairMiddle&0x0f + 1) << 4
+		row = row&0xf00f | (newTilePairMiddle << 4)
+		scoreAdd += 2 << uint((newTilePairMiddle>>4)-1)
+	}
+
+	tilePairRight := row & 0xff
+	if tilePairRight != 0 && tilePairRight&0xf0>>4 == tilePairRight&0x0f {
+		newTilePairRight := (tilePairRight&0x0f + 1) << 4
+		row = row&0xff00 | newTilePairRight
+		scoreAdd += 2 << uint((newTilePairRight>>4)-1)
+	}
+
+	// Remove zeros
+	for row&0xf000 == 0 {
+		row = row << 4
+	}
+
+	if row&0x0fff != 0 {
+		for row&0x0f00 == 0 {
+			row = ((row & 0x0fff) << 4) | row&0xf000
+		}
+	}
+
+	if row&0x00ff != 0 {
+		for row&0x00f0 == 0 {
+			row = ((row & 0x00ff) << 4) | row&0xff00
+		}
+	}
+
+	return row, scoreAdd
 }
 
-func moveRowRight(row []int64) ([]int64, int64) {
-	rowList := sliceToList(row)
-
-	score := int64(0)
-
-	// Remove all zeros and put them at the front
-	current := rowList.Front()
-	for current != nil {
-		next := current.Next()
-		if current.Value == int64(0) {
-			rowList.Remove(current)
-			rowList.PushFront(int64(0))
-		}
-		current = next
+// Before Optimization
+// BenchmarkMoveDown-8       	 1000000	      2640 ns/op
+func MoveDown(board int64) (int64, int64, error) {
+	if board == 0 {
+		return board, 0, errors.New("no move was made")
 	}
 
-	// Merge non-zero pairs together
-	current = rowList.Back()
-	for current != nil && current.Prev() != nil {
-		prev := current.Prev()
-		prevPrev := prev.Prev()
-		if current.Value == prev.Value && current.Value != 0 {
-			// prev.value becomes current.value + prev.value
-			prev.Value = current.Value.(int64) + prev.Value.(int64)
+	// transpose compressed board
+	transposed := transposeCompressedBoard(board)
 
-			// current.value becomes 0
-			current.Value = int64(0)
+	var movedTransposed int64
+	var scoreAdd int64
+	for rowNum := 0; rowNum < 4; rowNum++ {
+		rowShift := uint((3 - rowNum) * 16)
+		row := transposed >> uint(rowShift) & 0xffff
 
-			// current becomes prevPrev
-			current = prevPrev
+		var scoreAddRow int64
+		row, scoreAddRow = moveRowRightC(row)
 
-			// add to score
-			score += prev.Value.(int64)
-		} else {
-			current = prev
-		}
+		scoreAdd += scoreAddRow
+		movedTransposed = movedTransposed | (row << uint(rowShift))
 	}
 
-	// Remove all zeros and put them at the front
-	current = rowList.Front()
-	for current != nil {
-		next := current.Next()
-		if current.Value == int64(0) {
-			rowList.Remove(current)
-			rowList.PushFront(int64(0))
-		}
-		current = next
+	movedBoard := transposeCompressedBoard(movedTransposed)
+
+	if movedBoard == board {
+		return board, 0, errors.New("no move was made")
 	}
 
-	return listToSlice(rowList), score
+	return movedBoard, scoreAdd, nil
 }
 
-func moveRowLeft(row []int64) ([]int64, int64) {
-	rowList := sliceToList(row)
+func transposeCompressedBoard(b int64) (t int64) {
+	t = (((b >> 60) & 0xf) << 60) | t
+	t = (((b >> 56) & 0xf) << 44) | t
+	t = (((b >> 52) & 0xf) << 28) | t
+	t = (((b >> 48) & 0xf) << 12) | t
 
-	score := int64(0)
+	t = (((b >> 44) & 0xf) << 56) | t
+	t = (((b >> 40) & 0xf) << 40) | t
+	t = (((b >> 36) & 0xf) << 24) | t
+	t = (((b >> 32) & 0xf) << 8) | t
 
-	// Remove all zeros and put them at the back
-	current := rowList.Back()
-	for current != nil {
-		prev := current.Prev()
-		if current.Value == int64(0) {
-			rowList.Remove(current)
-			rowList.PushBack(int64(0))
-		}
-		current = prev
-	}
+	t = (((b >> 28) & 0xf) << 52) | t
+	t = (((b >> 24) & 0xf) << 36) | t
+	t = (((b >> 20) & 0xf) << 20) | t
+	t = (((b >> 16) & 0xf) << 4) | t
 
-	// Merge non-zero pairs together
-	current = rowList.Front()
-	for current != nil && current.Next() != nil {
-		next := current.Next()
-		nextNext := next.Next()
-		if current.Value == next.Value && current.Value != 0 {
-			// next.value becomes current.value + next.value
-			next.Value = current.Value.(int64) + next.Value.(int64)
+	t = (((b >> 12) & 0xf) << 48) | t
+	t = (((b >> 8) & 0xf) << 32) | t
+	t = (((b >> 4) & 0xf) << 16) | t
+	t = (((b >> 0) & 0xf) << 0) | t
 
-			// current.value becomes 0
-			current.Value = int64(0)
-
-			// current becomes nextNext
-			current = nextNext
-
-			// add to score
-			score += next.Value.(int64)
-		} else {
-			current = next
-		}
-	}
-
-	// Remove all zeros and put them at the back
-	current = rowList.Back()
-	for current != nil {
-		prev := current.Prev()
-		if current.Value == int64(0) {
-			rowList.Remove(current)
-			rowList.PushBack(int64(0))
-		}
-		current = prev
-	}
-
-	return listToSlice(rowList), score
+	return t
 }
 
-func sliceToList(slice []int64) *list.List {
-	l := list.New()
-
-	for _, elem := range slice {
-		l.PushBack(elem)
+// Before Optimization
+// BenchmarkMoveUp-8         	  500000	      2848 ns/op
+func MoveUp(board int64) (int64, int64, error) {
+	if board == 0 {
+		return board, 0, errors.New("no move was made")
 	}
 
-	return l
-}
+	// transpose compressed board
+	transposed := transposeCompressedBoard(board)
 
-func listToSlice(l *list.List) []int64 {
-	slice := make([]int64, l.Len())
-	current := l.Front()
-	i := 0
-	for current != nil {
-		slice[i] = current.Value.(int64)
-		i++
-		current = current.Next()
+	var movedTransposed int64
+	var scoreAdd int64
+	for rowNum := 0; rowNum < 4; rowNum++ {
+		rowShift := uint((3 - rowNum) * 16)
+		row := transposed >> uint(rowShift) & 0xffff
+
+		var scoreAddRow int64
+		row, scoreAddRow = moveRowLeftC(row)
+
+		scoreAdd += scoreAddRow
+		movedTransposed = movedTransposed | (row << uint(rowShift))
 	}
-	return slice
+
+	movedBoard := transposeCompressedBoard(movedTransposed)
+
+	if movedBoard == board {
+		return board, 0, errors.New("no move was made")
+	}
+
+	return movedBoard, scoreAdd, nil
 }

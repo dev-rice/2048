@@ -25,8 +25,8 @@ type printer interface {
 }
 
 type Game struct {
-	newBoardFunc     func() [][]int64
-	placeNewTileFunc func(board [][]int64) [][]int64
+	newBoardFunc     func() int64
+	placeNewTileFunc func(board int64) int64
 }
 
 func New() Game {
@@ -55,13 +55,13 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 			didMove = false
 		}
 
+		gameBoardGrid := board.UncompressBoard(gameBoard)
 		printer.ClearScreen()
 		printer.Printf("Score: %v\n", metrics.Score)
-		printer.Printf("%s\n\n", board.NewStringer(gameBoard))
+		printer.Printf("%s\n\n", board.NewStringer(gameBoardGrid))
 
-		compressedBoard := board.CompressBoardGrid(gameBoard)
-		if board.AreMovesLeft(board.CompressBoardGrid(gameBoard)) {
-			action := player.GetAction(gameBoard)
+		if board.AreMovesLeft(gameBoard) {
+			action := player.GetAction(gameBoardGrid)
 
 			var scoreAdd int64
 			var err error
@@ -76,8 +76,7 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 				gameBoard, scoreAdd, err = board.MoveLeft(gameBoard)
 				break
 			case actions.MoveRight:
-				compressedBoard, scoreAdd, err = board.MoveRight(compressedBoard)
-				gameBoard = board.UncompressBoard(compressedBoard)
+				gameBoard, scoreAdd, err = board.MoveRight(gameBoard)
 				break
 			case actions.Quit:
 				printer.Printf("Quitting...\n")
@@ -96,7 +95,8 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 	return metrics
 }
 
-func getBiggestTile(b [][]int64) int64 {
+func getBiggestTile(compressed int64) int64 {
+	b := board.UncompressBoard(compressed)
 	biggest := int64(0)
 	for y := 0; y < len(b); y++ {
 		for x := 0; x < len(b[0]); x++ {

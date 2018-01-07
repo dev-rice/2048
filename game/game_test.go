@@ -87,13 +87,13 @@ func TestPlayWithOneMove(t *testing.T) {
 
 	testGame := Game{
 		newBoardFunc: board.NewEmptyBoard,
-		placeNewTileFunc: func([][]int64) [][]int64 {
-			return [][]int64{
+		placeNewTileFunc: func(int64) int64 {
+			return board.CompressBoardGrid([][]int64{
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 2},
-			}
+			})
 		},
 	}
 	var metrics GameMetrics
@@ -122,15 +122,15 @@ func TestPlayWithOneMoveWithScore(t *testing.T) {
 	printer := &mockPrinter{}
 
 	testGame := Game{
-		newBoardFunc: func() [][]int64 {
-			return [][]int64{
+		newBoardFunc: func() int64 {
+			return board.CompressBoardGrid([][]int64{
 				{0, 0, 0, 0},
 				{0, 32, 0, 2},
 				{0, 32, 0, 2},
 				{0, 0, 0, 0},
-			}
+			})
 		},
-		placeNewTileFunc: func(b [][]int64) [][]int64 {
+		placeNewTileFunc: func(b int64) int64 {
 			return b
 		},
 	}
@@ -160,15 +160,15 @@ func TestPlayWithFiveMoves(t *testing.T) {
 	printer := &mockPrinter{}
 
 	testGame := Game{
-		newBoardFunc: func() [][]int64 {
-			return [][]int64{
+		newBoardFunc: func() int64 {
+			return board.CompressBoardGrid([][]int64{
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 2},
-			}
+			})
 		},
-		placeNewTileFunc: func(b [][]int64) [][]int64 {
+		placeNewTileFunc: func(b int64) int64 {
 			return b
 		},
 	}

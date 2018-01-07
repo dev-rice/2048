@@ -8,29 +8,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func areBoardsSame(a [][]int64, b [][]int64) bool {
-	for x := 0; x < len(a[0]); x++ {
-		for y := 0; y < len(a); y++ {
-			if a[x][y] != b[x][y] {
-				return false
-			}
-		}
-	}
-	return true
+func areBoardsSame(a int64, b int64) bool {
+	return a == b
 }
 
 func TestGetBestMoveLeft(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{0, 0, 2, 2},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	traverser := Traverser{
 		GetRating: func(b [][]int64) uint64 {
 			leftBoard, _, _ := board.MoveLeft(initialBoard)
-			if areBoardsSame(b, leftBoard) {
+			if areBoardsSame(board.CompressBoardGrid(b), leftBoard) {
 				return 100
 			} else {
 				return 0
@@ -39,21 +32,21 @@ func TestGetBestMoveLeft(t *testing.T) {
 		MaxDepth: 1,
 	}
 
-	assert.Equal(t, actions.MoveLeft, traverser.GetBestMove(initialBoard))
+	assert.Equal(t, actions.MoveLeft, traverser.GetBestMove(board.UncompressBoard(initialBoard)))
 }
 
 func TestGetBestMoveRight(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{0, 0, 2, 2},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	traverser := Traverser{
 		GetRating: func(b [][]int64) uint64 {
-			rightBoard, _, _ := board.MoveRight(board.CompressBoardGrid(initialBoard))
-			if areBoardsSame(b, board.UncompressBoard(rightBoard)) {
+			rightBoard, _, _ := board.MoveRight(initialBoard)
+			if areBoardsSame(board.CompressBoardGrid(b), rightBoard) {
 				return 100
 			} else {
 				return 0
@@ -62,21 +55,21 @@ func TestGetBestMoveRight(t *testing.T) {
 		MaxDepth: 1,
 	}
 
-	assert.Equal(t, actions.MoveRight, traverser.GetBestMove(initialBoard))
+	assert.Equal(t, actions.MoveRight, traverser.GetBestMove(board.UncompressBoard(initialBoard)))
 }
 
 func TestGetBestMoveUp(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 2, 2},
-	}
+	})
 
 	traverser := Traverser{
 		GetRating: func(b [][]int64) uint64 {
 			upBoard, _, _ := board.MoveUp(initialBoard)
-			if areBoardsSame(b, upBoard) {
+			if areBoardsSame(board.CompressBoardGrid(b), upBoard) {
 				return 100
 			} else {
 				return 0
@@ -85,21 +78,21 @@ func TestGetBestMoveUp(t *testing.T) {
 		MaxDepth: 1,
 	}
 
-	assert.Equal(t, actions.MoveUp, traverser.GetBestMove(initialBoard))
+	assert.Equal(t, actions.MoveUp, traverser.GetBestMove(board.UncompressBoard(initialBoard)))
 }
 
 func TestGetBestMoveDown(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{0, 0, 2, 2},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	traverser := Traverser{
 		GetRating: func(b [][]int64) uint64 {
 			downBoard, _, _ := board.MoveDown(initialBoard)
-			if areBoardsSame(b, downBoard) {
+			if areBoardsSame(board.CompressBoardGrid(b), downBoard) {
 				return 100
 			} else {
 				return 0
@@ -108,7 +101,7 @@ func TestGetBestMoveDown(t *testing.T) {
 		MaxDepth: 1,
 	}
 
-	assert.Equal(t, actions.MoveDown, traverser.GetBestMove(initialBoard))
+	assert.Equal(t, actions.MoveDown, traverser.GetBestMove(board.UncompressBoard(initialBoard)))
 }
 
 func TestGetBestMoveAllMovesSameNoError(t *testing.T) {
@@ -130,12 +123,12 @@ func TestGetBestMoveAllMovesSameNoError(t *testing.T) {
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorUpAndLeftAndRightMovesDown(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{2, 4, 2, 4},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	_, _, err := board.MoveUp(initialBoard)
 	assert.NotNil(t, err)
@@ -143,7 +136,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndLeftAndRightMovesDown(t *testing.
 	_, _, err = board.MoveLeft(initialBoard)
 	assert.NotNil(t, err)
 
-	_, _, err = board.MoveRight(board.CompressBoardGrid(initialBoard))
+	_, _, err = board.MoveRight(initialBoard)
 	assert.NotNil(t, err)
 
 	traverser := Traverser{
@@ -153,16 +146,16 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndLeftAndRightMovesDown(t *testing.
 		MaxDepth: 1,
 	}
 
-	assert.Equal(t, actions.MoveDown, traverser.GetBestMove(initialBoard))
+	assert.Equal(t, actions.MoveDown, traverser.GetBestMove(board.UncompressBoard(initialBoard)))
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorDownAndLeftAndRightMovesUp(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{2, 4, 2, 4},
-	}
+	})
 
 	_, _, err := board.MoveDown(initialBoard)
 	assert.NotNil(t, err)
@@ -170,7 +163,7 @@ func TestGetBestMoveAllMovesSameScoreErrorDownAndLeftAndRightMovesUp(t *testing.
 	_, _, err = board.MoveLeft(initialBoard)
 	assert.NotNil(t, err)
 
-	_, _, err = board.MoveRight(board.CompressBoardGrid(initialBoard))
+	_, _, err = board.MoveRight(initialBoard)
 	assert.NotNil(t, err)
 
 	traverser := Traverser{
@@ -180,16 +173,16 @@ func TestGetBestMoveAllMovesSameScoreErrorDownAndLeftAndRightMovesUp(t *testing.
 		MaxDepth: 1,
 	}
 
-	assert.Equal(t, actions.MoveUp, traverser.GetBestMove(initialBoard))
+	assert.Equal(t, actions.MoveUp, traverser.GetBestMove(board.UncompressBoard(initialBoard)))
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndRightMovesLeft(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{0, 0, 0, 2},
 		{0, 0, 0, 4},
 		{0, 0, 0, 2},
 		{0, 0, 0, 4},
-	}
+	})
 
 	_, _, err := board.MoveUp(initialBoard)
 	assert.NotNil(t, err)
@@ -197,7 +190,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndRightMovesLeft(t *testing.
 	_, _, err = board.MoveDown(initialBoard)
 	assert.NotNil(t, err)
 
-	_, _, err = board.MoveRight(board.CompressBoardGrid(initialBoard))
+	_, _, err = board.MoveRight(initialBoard)
 	assert.NotNil(t, err)
 
 	traverser := Traverser{
@@ -207,16 +200,16 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndRightMovesLeft(t *testing.
 		MaxDepth: 1,
 	}
 
-	assert.Equal(t, actions.MoveLeft, traverser.GetBestMove(initialBoard))
+	assert.Equal(t, actions.MoveLeft, traverser.GetBestMove(board.UncompressBoard(initialBoard)))
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndLeftMovesRight(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{2, 0, 0, 0},
 		{4, 0, 0, 0},
 		{2, 0, 0, 0},
 		{4, 0, 0, 0},
-	}
+	})
 
 	_, _, err := board.MoveUp(initialBoard)
 	assert.NotNil(t, err)
@@ -234,7 +227,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndLeftMovesRight(t *testing.
 		MaxDepth: 1,
 	}
 
-	assert.Equal(t, actions.MoveRight, traverser.GetBestMove(initialBoard))
+	assert.Equal(t, actions.MoveRight, traverser.GetBestMove(board.UncompressBoard(initialBoard)))
 }
 
 // Probably test error case when it somehow gets a board with no moves?
@@ -253,12 +246,12 @@ func getNumEmptyTiles(board [][]int64) uint64 {
 }
 
 func TestBuildRootDepth1MaximizeEmpty(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 8, 4},
 		{8, 2, 2, 4},
 		{2, 4, 2, 32},
-	}
+	})
 
 	r := buildRoot(initialBoard, getNumEmptyTiles, 1)
 	assert.Equal(t, uint64(8), r.up.rating)
@@ -268,12 +261,12 @@ func TestBuildRootDepth1MaximizeEmpty(t *testing.T) {
 }
 
 func TestBuildRootDepth2MaximizeEmpty(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 8, 4},
 		{8, 2, 2, 4},
 		{2, 4, 2, 32},
-	}
+	})
 
 	r := buildRoot(initialBoard, getNumEmptyTiles, 2)
 	assert.Equal(t, uint64(10), r.up.rating)
@@ -283,12 +276,12 @@ func TestBuildRootDepth2MaximizeEmpty(t *testing.T) {
 }
 
 func TestBuildRootDepth3MaximizeEmpty(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := board.CompressBoardGrid([][]int64{
 		{0, 0, 0, 0},
 		{2, 2, 8, 4},
 		{8, 2, 2, 4},
 		{2, 4, 2, 32},
-	}
+	})
 
 	r := buildRoot(initialBoard, getNumEmptyTiles, 3)
 	assert.Equal(t, uint64(10), r.up.rating)
