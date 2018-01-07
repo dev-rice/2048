@@ -10,6 +10,116 @@ func TestNewEmptyBoardReturnsZero(t *testing.T) {
 	assert.Equal(t, int64(0), NewEmptyBoard())
 }
 
+func TestExtractGridFromBoard(t *testing.T) {
+	compressedBoard := int64(0x0044003200110211)
+
+	expected := [][]int64{
+		{0, 0, 16, 16},
+		{0, 0, 8, 4},
+		{0, 0, 2, 2},
+		{0, 4, 2, 2},
+	}
+	assert.Equal(t, expected, ExtractGridFromBoard(compressedBoard))
+}
+
+func TestExtractGridFromBoardAndNewBoardFromGridAreInverse(t *testing.T) {
+	compressedBoard := int64(0x0044003200110211)
+	expected := [][]int64{
+		{0, 0, 16, 16},
+		{0, 0, 8, 4},
+		{0, 0, 2, 2},
+		{0, 4, 2, 2},
+	}
+	uncompressedBoard := ExtractGridFromBoard(compressedBoard)
+	assert.Equal(t, expected, uncompressedBoard)
+	assert.Equal(t, compressedBoard, NewBoardFromGrid(uncompressedBoard))
+}
+
+func TestNewBoardFromGrid(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	}
+	assert.Equal(t, int64(0x1000000000000000), NewBoardFromGrid(b))
+}
+
+func TestNewBoardFromGrid_2(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 8},
+	}
+	assert.Equal(t, int64(0x1000000000000003), NewBoardFromGrid(b))
+}
+
+func TestNewBoardFromGrid_3(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 256, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 8},
+	}
+	assert.Equal(t, int64(0x1000008000000003), NewBoardFromGrid(b))
+}
+
+func TestAreMovesLeftReturnsTrueForEmptyBoard(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	})
+
+	assert.True(t, AreMovesLeft(board))
+}
+
+func TestAreMovesLeftReturnsFalseForFullStaggeredBoard(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{2, 4, 2, 4},
+		{4, 2, 4, 2},
+		{2, 4, 2, 4},
+		{4, 2, 4, 2},
+	})
+
+	assert.False(t, AreMovesLeft(board))
+}
+
+func TestAreMovesLeftReturnsTrueForFullVerticallyStripedBoard(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{4, 2, 4, 2},
+		{4, 2, 4, 2},
+		{4, 2, 4, 2},
+		{4, 2, 4, 2},
+	})
+
+	assert.True(t, AreMovesLeft(board))
+}
+
+func TestAreMovesLeftReturnsTrueForFullBoardSinglePair(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{8, 2, 8, 2},
+		{4, 8, 4, 8},
+		{8, 2, 8, 2},
+		{4, 8, 4, 2},
+	})
+
+	assert.True(t, AreMovesLeft(board))
+}
+
+func TestAreMovesLeftReturnsTrueForStaggeredBoardWithOneEmpty(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{0, 4, 2, 4},
+		{4, 2, 4, 2},
+		{2, 4, 2, 4},
+		{4, 2, 4, 2},
+	})
+
+	assert.True(t, AreMovesLeft(board))
+}
+
 func TestMoveRightWithEmptyReturnsEmptyAndError(t *testing.T) {
 	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
@@ -540,114 +650,4 @@ func TestMoveUpWithNoChangesReturnsError(t *testing.T) {
 	assert.Equal(t, initialBoard, actualBoard)
 	assert.Equal(t, int64(0), score)
 	assert.NotNil(t, err)
-}
-
-func TestUncompressBoard(t *testing.T) {
-	compressedBoard := int64(0x0044003200110211)
-
-	expected := [][]int64{
-		{0, 0, 16, 16},
-		{0, 0, 8, 4},
-		{0, 0, 2, 2},
-		{0, 4, 2, 2},
-	}
-	assert.Equal(t, expected, ExtractGridFromBoard(compressedBoard))
-}
-
-func TestUncompressAndCompressBoardAreInverse(t *testing.T) {
-	compressedBoard := int64(0x0044003200110211)
-	expected := [][]int64{
-		{0, 0, 16, 16},
-		{0, 0, 8, 4},
-		{0, 0, 2, 2},
-		{0, 4, 2, 2},
-	}
-	uncompressedBoard := ExtractGridFromBoard(compressedBoard)
-	assert.Equal(t, expected, uncompressedBoard)
-	assert.Equal(t, compressedBoard, NewBoardFromGrid(uncompressedBoard))
-}
-
-func TestCompressBoardGrid(t *testing.T) {
-	b := [][]int64{
-		{2, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-	}
-	assert.Equal(t, int64(0x1000000000000000), NewBoardFromGrid(b))
-}
-
-func TestCompressBoardGrid_2(t *testing.T) {
-	b := [][]int64{
-		{2, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 8},
-	}
-	assert.Equal(t, int64(0x1000000000000003), NewBoardFromGrid(b))
-}
-
-func TestCompressBoardGrid_3(t *testing.T) {
-	b := [][]int64{
-		{2, 0, 0, 0},
-		{0, 0, 256, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 8},
-	}
-	assert.Equal(t, int64(0x1000008000000003), NewBoardFromGrid(b))
-}
-
-func TestAreMovesLeftReturnsTrueForEmptyBoard(t *testing.T) {
-	board := NewBoardFromGrid([][]int64{
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-	})
-
-	assert.True(t, AreMovesLeft(board))
-}
-
-func TestAreMovesLeftReturnsFalseForFullStaggeredBoard(t *testing.T) {
-	board := NewBoardFromGrid([][]int64{
-		{2, 4, 2, 4},
-		{4, 2, 4, 2},
-		{2, 4, 2, 4},
-		{4, 2, 4, 2},
-	})
-
-	assert.False(t, AreMovesLeft(board))
-}
-
-func TestAreMovesLeftReturnsTrueForFullVerticallyStripedBoard(t *testing.T) {
-	board := NewBoardFromGrid([][]int64{
-		{4, 2, 4, 2},
-		{4, 2, 4, 2},
-		{4, 2, 4, 2},
-		{4, 2, 4, 2},
-	})
-
-	assert.True(t, AreMovesLeft(board))
-}
-
-func TestAreMovesLeftReturnsTrueForFullBoardSinglePair(t *testing.T) {
-	board := NewBoardFromGrid([][]int64{
-		{8, 2, 8, 2},
-		{4, 8, 4, 8},
-		{8, 2, 8, 2},
-		{4, 8, 4, 2},
-	})
-
-	assert.True(t, AreMovesLeft(board))
-}
-
-func TestAreMovesLeftReturnsTrueForStaggeredBoardWithOneEmpty(t *testing.T) {
-	board := NewBoardFromGrid([][]int64{
-		{0, 4, 2, 4},
-		{4, 2, 4, 2},
-		{2, 4, 2, 4},
-		{4, 2, 4, 2},
-	})
-
-	assert.True(t, AreMovesLeft(board))
 }

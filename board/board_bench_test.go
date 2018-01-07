@@ -2,7 +2,7 @@ package board
 
 import "testing"
 
-func BenchmarkCompressBoardGrid(b *testing.B) {
+func BenchmarkNewBoardFromGrid(b *testing.B) {
 	board := [][]int64{
 		{0, 4, 2, 4},
 		{4, 2, 4, 2},
@@ -15,7 +15,7 @@ func BenchmarkCompressBoardGrid(b *testing.B) {
 	}
 }
 
-func BenchmarkUncompressBoard(b *testing.B) {
+func BenchmarkExtractGridFromBoard(b *testing.B) {
 	board := NewBoardFromGrid([][]int64{
 		{0, 4, 2, 4},
 		{4, 2, 4, 2},
