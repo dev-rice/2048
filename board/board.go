@@ -16,36 +16,29 @@ func NewEmptyBoard() int64 {
 // No tests for this OH GODDDD!
 func PlaceRandomTile(compressed int64) int64 {
 
-	board := UncompressBoard(compressed)
-	if boardIsFull(board) {
+	if boardIsFull(compressed) {
 		return compressed
 	}
 
-	tileNumber := int64(2)
+	tileNumber := int64(1)
 	if rand.Intn(10) == 0 {
-		tileNumber = 4
+		tileNumber = 2
 	}
 
 	for {
-		size := len(board)
-		x := rand.Intn(size)
-		y := rand.Intn(size)
-		if board[x][y] == 0 {
-			board[x][y] = tileNumber
-			return CompressBoardGrid(board)
+		shiftAmount := uint(4 * rand.Intn(16))
+		if (compressed>>shiftAmount)&0xf == 0 {
+			mask := int64(0xf << shiftAmount)
+			return compressed&^mask | tileNumber<<shiftAmount
 		}
 	}
 }
 
-func boardIsFull(board [][]int64) bool {
-	width := len(board)
-	height := width
-
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
-			if board[x][y] == 0 {
-				return false
-			}
+func boardIsFull(board int64) bool {
+	for i := 0; i < 16; i++ {
+		shiftAmount := uint(4 * i)
+		if (board>>shiftAmount)&0xf == 0 {
+			return false
 		}
 	}
 	return true
