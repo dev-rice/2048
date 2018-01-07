@@ -6,8 +6,33 @@ import (
 	"errors"
 )
 
+type Board uint64
+
 func NewEmptyBoard() int64 {
 	return 0
+}
+
+func NewBoardFromGrid(board [][]int64) int64 {
+	// compressedBoard board is int64 where each 4 bytes is a tile. Tile value is calculated as 2^(4 byte tile val)
+	// it is filled horizontally then vertically strating from the top and moving right. Most significant 4 bits of compressedBoard are log(2,tile_0,0), second most significant 4 bits are log(2,tile_1,0), etc.
+
+	size := len(board)
+
+	var compressedBoard int64
+	for x := 0; x < size; x++ {
+		for y := 0; y < size; y++ {
+			tileValue := board[y][x]
+			var compressedValue uint8
+			if tileValue == 0 {
+				compressedValue = 0
+			} else {
+				compressedValue = efficientLog2(tileValue)
+			}
+			shiftAmount := uint((size-1-x)*4 + (size-1-y)*16)
+			compressedBoard = compressedBoard | (int64(compressedValue) << shiftAmount)
+		}
+	}
+	return compressedBoard
 }
 
 // No tests for this OH GODDDD!
@@ -79,29 +104,6 @@ func AreMovesLeft(board int64) bool {
 	return false
 }
 
-func CompressBoardGrid(board [][]int64) int64 {
-	// compressedBoard board is int64 where each 4 bytes is a tile. Tile value is calculated as 2^(4 byte tile val)
-	// it is filled horizontally then vertically strating from the top and moving right. Most significant 4 bits of compressedBoard are log(2,tile_0,0), second most significant 4 bits are log(2,tile_1,0), etc.
-
-	size := len(board)
-
-	var compressedBoard int64
-	for x := 0; x < size; x++ {
-		for y := 0; y < size; y++ {
-			tileValue := board[y][x]
-			var compressedValue uint8
-			if tileValue == 0 {
-				compressedValue = 0
-			} else {
-				compressedValue = efficientLog2(tileValue)
-			}
-			shiftAmount := uint((size-1-x)*4 + (size-1-y)*16)
-			compressedBoard = compressedBoard | (int64(compressedValue) << shiftAmount)
-		}
-	}
-	return compressedBoard
-}
-
 // Only works for int64 that is a power of 2
 func efficientLog2(v int64) (count uint8) {
 	count = 1
@@ -112,7 +114,7 @@ func efficientLog2(v int64) (count uint8) {
 	return count
 }
 
-func UncompressBoard(compressedBoard int64) [][]int64 {
+func ExtractGridFromBoard(compressedBoard int64) [][]int64 {
 	boardGrid := [][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},

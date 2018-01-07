@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetRatingMaximizeScoreSimple(t *testing.T) {
-	b := board.CompressBoardGrid([][]int64{
+	b := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 2, 0},
@@ -19,7 +19,7 @@ func TestGetRatingMaximizeScoreSimple(t *testing.T) {
 }
 
 func TestGetRatingMaximizeScore(t *testing.T) {
-	b := board.CompressBoardGrid([][]int64{
+	b := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 2, 0},
@@ -30,7 +30,7 @@ func TestGetRatingMaximizeScore(t *testing.T) {
 }
 
 func TestGetRatingMaximizeScore2(t *testing.T) {
-	b := board.CompressBoardGrid([][]int64{
+	b := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 2},
 		{2, 0, 0, 8},
@@ -41,7 +41,7 @@ func TestGetRatingMaximizeScore2(t *testing.T) {
 }
 
 func TestGetRatingMaximizeScore3(t *testing.T) {
-	b := board.CompressBoardGrid([][]int64{
+	b := board.NewBoardFromGrid([][]int64{
 		{2, 4, 16, 4},
 		{32, 128, 32, 64},
 		{4, 32, 256, 4},

@@ -56,7 +56,7 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 
 		printer.ClearScreen()
 		printer.Printf("Score: %v\n", metrics.Score)
-		printer.Printf("%s\n\n", board.NewStringer(board.UncompressBoard(gameBoard)))
+		printer.Printf("%s\n\n", board.NewStringer(board.ExtractGridFromBoard(gameBoard)))
 
 		if board.AreMovesLeft(gameBoard) {
 			action := player.GetAction(gameBoard)
@@ -94,7 +94,7 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 }
 
 func getBiggestTile(compressed int64) int64 {
-	b := board.UncompressBoard(compressed)
+	b := board.ExtractGridFromBoard(compressed)
 	biggest := int64(0)
 	for y := 0; y < len(b); y++ {
 		for x := 0; x < len(b[0]); x++ {

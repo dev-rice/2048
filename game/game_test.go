@@ -88,7 +88,7 @@ func TestPlayWithOneMove(t *testing.T) {
 	testGame := Game{
 		newBoardFunc: board.NewEmptyBoard,
 		placeNewTileFunc: func(int64) int64 {
-			return board.CompressBoardGrid([][]int64{
+			return board.NewBoardFromGrid([][]int64{
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
@@ -123,7 +123,7 @@ func TestPlayWithOneMoveWithScore(t *testing.T) {
 
 	testGame := Game{
 		newBoardFunc: func() int64 {
-			return board.CompressBoardGrid([][]int64{
+			return board.NewBoardFromGrid([][]int64{
 				{0, 0, 0, 0},
 				{0, 32, 0, 2},
 				{0, 32, 0, 2},
@@ -161,7 +161,7 @@ func TestPlayWithFiveMoves(t *testing.T) {
 
 	testGame := Game{
 		newBoardFunc: func() int64 {
-			return board.CompressBoardGrid([][]int64{
+			return board.NewBoardFromGrid([][]int64{
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},

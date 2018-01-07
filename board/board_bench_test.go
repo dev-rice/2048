@@ -11,12 +11,12 @@ func BenchmarkCompressBoardGrid(b *testing.B) {
 	}
 
 	for n := 0; n < b.N; n++ {
-		CompressBoardGrid(board)
+		NewBoardFromGrid(board)
 	}
 }
 
 func BenchmarkUncompressBoard(b *testing.B) {
-	board := CompressBoardGrid([][]int64{
+	board := NewBoardFromGrid([][]int64{
 		{0, 4, 2, 4},
 		{4, 2, 4, 2},
 		{2, 4, 2, 4},
@@ -24,12 +24,12 @@ func BenchmarkUncompressBoard(b *testing.B) {
 	})
 
 	for n := 0; n < b.N; n++ {
-		UncompressBoard(board)
+		ExtractGridFromBoard(board)
 	}
 }
 
 func BenchmarkAreMovesLeft(b *testing.B) {
-	board := CompressBoardGrid([][]int64{
+	board := NewBoardFromGrid([][]int64{
 		{2, 4, 2, 4},
 		{4, 2, 4, 2},
 		{2, 4, 2, 4},
@@ -42,7 +42,7 @@ func BenchmarkAreMovesLeft(b *testing.B) {
 }
 
 func BenchmarkMoveRight(b *testing.B) {
-	board := CompressBoardGrid([][]int64{
+	board := NewBoardFromGrid([][]int64{
 		{2, 128, 0, 0},
 		{4, 0, 0, 4},
 		{2, 0, 8, 8},
@@ -55,7 +55,7 @@ func BenchmarkMoveRight(b *testing.B) {
 }
 
 func BenchmarkMoveLeft(b *testing.B) {
-	board := CompressBoardGrid([][]int64{
+	board := NewBoardFromGrid([][]int64{
 		{2, 128, 0, 0},
 		{4, 0, 0, 4},
 		{2, 0, 8, 8},
@@ -68,7 +68,7 @@ func BenchmarkMoveLeft(b *testing.B) {
 }
 
 func BenchmarkMoveDown(b *testing.B) {
-	board := CompressBoardGrid([][]int64{
+	board := NewBoardFromGrid([][]int64{
 		{2, 128, 0, 0},
 		{4, 0, 0, 4},
 		{2, 0, 8, 8},
@@ -81,7 +81,7 @@ func BenchmarkMoveDown(b *testing.B) {
 }
 
 func BenchmarkMoveUp(b *testing.B) {
-	board := CompressBoardGrid([][]int64{
+	board := NewBoardFromGrid([][]int64{
 		{2, 128, 0, 0},
 		{4, 0, 0, 4},
 		{2, 0, 8, 8},

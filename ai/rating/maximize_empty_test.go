@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetRatingMaximizeEmptyReturns0ForFull(t *testing.T) {
-	b := board.CompressBoardGrid([][]int64{
+	b := board.NewBoardFromGrid([][]int64{
 		{2, 2, 2, 2},
 		{2, 2, 2, 2},
 		{2, 2, 2, 2},
@@ -19,7 +19,7 @@ func TestGetRatingMaximizeEmptyReturns0ForFull(t *testing.T) {
 }
 
 func TestGetRatingMaximizeEmptyReturns16ForEmpty(t *testing.T) {
-	b := board.CompressBoardGrid([][]int64{
+	b := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
@@ -30,7 +30,7 @@ func TestGetRatingMaximizeEmptyReturns16ForEmpty(t *testing.T) {
 }
 
 func TestGetRatingMaximizeEmptyReturns7ForPartiallyFull(t *testing.T) {
-	b := board.CompressBoardGrid([][]int64{
+	b := board.NewBoardFromGrid([][]int64{
 		{2, 0, 0, 0},
 		{2, 8, 4, 0},
 		{2, 2, 2, 0},

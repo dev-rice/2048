@@ -13,7 +13,7 @@ func areBoardsSame(a int64, b int64) bool {
 }
 
 func TestGetBestMoveLeft(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{0, 0, 2, 2},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
@@ -36,7 +36,7 @@ func TestGetBestMoveLeft(t *testing.T) {
 }
 
 func TestGetBestMoveRight(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{0, 0, 2, 2},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
@@ -59,7 +59,7 @@ func TestGetBestMoveRight(t *testing.T) {
 }
 
 func TestGetBestMoveUp(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
@@ -82,7 +82,7 @@ func TestGetBestMoveUp(t *testing.T) {
 }
 
 func TestGetBestMoveDown(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{0, 0, 2, 2},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
@@ -105,7 +105,7 @@ func TestGetBestMoveDown(t *testing.T) {
 }
 
 func TestGetBestMoveAllMovesSameNoError(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 2, 0},
@@ -123,7 +123,7 @@ func TestGetBestMoveAllMovesSameNoError(t *testing.T) {
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorUpAndLeftAndRightMovesDown(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{2, 4, 2, 4},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
@@ -150,7 +150,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndLeftAndRightMovesDown(t *testing.
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorDownAndLeftAndRightMovesUp(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
@@ -177,7 +177,7 @@ func TestGetBestMoveAllMovesSameScoreErrorDownAndLeftAndRightMovesUp(t *testing.
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndRightMovesLeft(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 2},
 		{0, 0, 0, 4},
 		{0, 0, 0, 2},
@@ -204,7 +204,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndRightMovesLeft(t *testing.
 }
 
 func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndLeftMovesRight(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{2, 0, 0, 0},
 		{4, 0, 0, 0},
 		{2, 0, 0, 0},
@@ -234,7 +234,7 @@ func TestGetBestMoveAllMovesSameScoreErrorUpAndDownAndLeftMovesRight(t *testing.
 
 // These tests should probably be in a separate package
 func getNumEmptyTiles(compressed int64) uint64 {
-	board := board.UncompressBoard(compressed)
+	board := board.ExtractGridFromBoard(compressed)
 	emptyTiles := uint64(0)
 	for x := 0; x < len(board[0]); x++ {
 		for y := 0; y < len(board); y++ {
@@ -247,7 +247,7 @@ func getNumEmptyTiles(compressed int64) uint64 {
 }
 
 func TestBuildRootDepth1MaximizeEmpty(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 8, 4},
 		{8, 2, 2, 4},
@@ -262,7 +262,7 @@ func TestBuildRootDepth1MaximizeEmpty(t *testing.T) {
 }
 
 func TestBuildRootDepth2MaximizeEmpty(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 8, 4},
 		{8, 2, 2, 4},
@@ -277,7 +277,7 @@ func TestBuildRootDepth2MaximizeEmpty(t *testing.T) {
 }
 
 func TestBuildRootDepth3MaximizeEmpty(t *testing.T) {
-	initialBoard := board.CompressBoardGrid([][]int64{
+	initialBoard := board.NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{2, 2, 8, 4},
 		{8, 2, 2, 4},
