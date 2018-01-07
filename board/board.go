@@ -4,12 +4,9 @@ import (
 	"math/rand"
 
 	"errors"
-
-	"time"
 )
 
 func NewEmptyBoard() int64 {
-	rand.Seed(time.Now().UnixNano())
 	return 0
 }
 

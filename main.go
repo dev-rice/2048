@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"os"
 
 	"bufio"
@@ -20,6 +21,8 @@ import (
 
 // Add a test color board (whenever cli is a thing)
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	app := cli.NewApp()
 	app.Commands = []cli.Command{
 		{
