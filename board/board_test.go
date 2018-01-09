@@ -98,6 +98,17 @@ func TestAreMovesLeftReturnsTrueForFullVerticallyStripedBoard(t *testing.T) {
 	assert.True(t, AreMovesLeft(board))
 }
 
+func TestAreMovesLeftReturnsTrueForFullHorizontallyStripedBoard(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{2, 2, 2, 2},
+		{4, 4, 4, 4},
+		{2, 2, 2, 2},
+		{4, 4, 4, 4},
+	})
+
+	assert.True(t, AreMovesLeft(board))
+}
+
 func TestAreMovesLeftReturnsTrueForFullBoardSinglePair(t *testing.T) {
 	board := NewBoardFromGrid([][]int64{
 		{8, 2, 8, 2},
