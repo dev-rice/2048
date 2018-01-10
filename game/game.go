@@ -12,7 +12,6 @@ import (
 // Ideas for more metrics:
 // 		number of up, left, right, and down moves
 //		longest time spent moving
-
 type GameMetrics struct {
 	MovesMade          int64
 	Score              int64
@@ -26,8 +25,8 @@ type printer interface {
 }
 
 type Game struct {
-	newBoardFunc     func() [][]int64
-	placeNewTileFunc func(board [][]int64) [][]int64
+	newBoardFunc     func() int64
+	placeNewTileFunc func(board int64) int64
 }
 
 func New() Game {
@@ -58,7 +57,7 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 
 		printer.ClearScreen()
 		printer.Printf("Score: %v\n", metrics.Score)
-		printer.Printf("%s\n\n", board.NewStringer(gameBoard))
+		printer.Printf("%s\n\n", board.NewStringer(board.ExtractGridFromBoard(gameBoard)))
 
 		if board.AreMovesLeft(gameBoard) {
 			action := player.GetAction(gameBoard)
@@ -98,7 +97,8 @@ func (g Game) Play(player players.Player, printer printer) (metrics GameMetrics)
 	return metrics
 }
 
-func getBiggestTile(b [][]int64) int64 {
+func getBiggestTile(compressed int64) int64 {
+	b := board.ExtractGridFromBoard(compressed)
 	biggest := int64(0)
 	for y := 0; y < len(b); y++ {
 		for x := 0; x < len(b[0]); x++ {
