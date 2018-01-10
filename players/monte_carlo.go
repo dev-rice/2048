@@ -44,7 +44,7 @@ func NewMonteCarloPlayer() MonteCarloPlayer {
 func (m MonteCarloPlayer) GetAction(b [][]int64) actions.Action {
 	a := make([]actionTuple, 0)
 
-	timesPerMove := 100
+	timesPerMove := 200
 
 	wg := sync.WaitGroup{}
 	wg.Add(4)
