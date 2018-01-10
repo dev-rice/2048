@@ -1,8 +1,13 @@
 package rating
 
-import "math"
+import (
+	"math"
 
-func GetRatingMaximizeScore(b [][]int64) (totalScore uint64) {
+	"github.com/donutmonger/2048/board"
+)
+
+func GetRatingMaximizeScore(compressed int64) (totalScore uint64) {
+	b := board.ExtractGridFromBoard(compressed)
 	for y := 0; y < len(b); y++ {
 		for x := 0; x < len(b[0]); x++ {
 			totalScore += getScoreForTile(b[y][x])

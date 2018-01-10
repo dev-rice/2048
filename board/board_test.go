@@ -6,24 +6,138 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewEmptyBoardReturns4x4OfZeros(t *testing.T) {
-	expectedBoard := [][]int64{
-		{0, 0, 0, 0},
+func TestNewEmptyBoardReturnsZero(t *testing.T) {
+	assert.Equal(t, int64(0), NewEmptyBoard())
+}
+
+func TestExtractGridFromBoard(t *testing.T) {
+	compressedBoard := int64(0x0044003200110211)
+
+	expected := [][]int64{
+		{0, 0, 16, 16},
+		{0, 0, 8, 4},
+		{0, 0, 2, 2},
+		{0, 4, 2, 2},
+	}
+	assert.Equal(t, expected, ExtractGridFromBoard(compressedBoard))
+}
+
+func TestExtractGridFromBoardAndNewBoardFromGridAreInverse(t *testing.T) {
+	compressedBoard := int64(0x0044003200110211)
+	expected := [][]int64{
+		{0, 0, 16, 16},
+		{0, 0, 8, 4},
+		{0, 0, 2, 2},
+		{0, 4, 2, 2},
+	}
+	uncompressedBoard := ExtractGridFromBoard(compressedBoard)
+	assert.Equal(t, expected, uncompressedBoard)
+	assert.Equal(t, compressedBoard, NewBoardFromGrid(uncompressedBoard))
+}
+
+func TestNewBoardFromGrid(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 	}
+	assert.Equal(t, int64(0x1000000000000000), NewBoardFromGrid(b))
+}
 
-	assert.Equal(t, expectedBoard, NewEmptyBoard())
+func TestNewBoardFromGrid_2(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 8},
+	}
+	assert.Equal(t, int64(0x1000000000000003), NewBoardFromGrid(b))
+}
+
+func TestNewBoardFromGrid_3(t *testing.T) {
+	b := [][]int64{
+		{2, 0, 0, 0},
+		{0, 0, 256, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 8},
+	}
+	assert.Equal(t, int64(0x1000008000000003), NewBoardFromGrid(b))
+}
+
+func TestAreMovesLeftReturnsTrueForEmptyBoard(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	})
+
+	assert.True(t, AreMovesLeft(board))
+}
+
+func TestAreMovesLeftReturnsFalseForFullStaggeredBoard(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{2, 4, 2, 4},
+		{4, 2, 4, 2},
+		{2, 4, 2, 4},
+		{4, 2, 4, 2},
+	})
+
+	assert.False(t, AreMovesLeft(board))
+}
+
+func TestAreMovesLeftReturnsTrueForFullVerticallyStripedBoard(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{4, 2, 4, 2},
+		{4, 2, 4, 2},
+		{4, 2, 4, 2},
+		{4, 2, 4, 2},
+	})
+
+	assert.True(t, AreMovesLeft(board))
+}
+
+func TestAreMovesLeftReturnsTrueForFullHorizontallyStripedBoard(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{2, 2, 2, 2},
+		{4, 4, 4, 4},
+		{2, 2, 2, 2},
+		{4, 4, 4, 4},
+	})
+
+	assert.True(t, AreMovesLeft(board))
+}
+
+func TestAreMovesLeftReturnsTrueForFullBoardSinglePair(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{8, 2, 8, 2},
+		{4, 8, 4, 8},
+		{8, 2, 8, 2},
+		{4, 8, 4, 2},
+	})
+
+	assert.True(t, AreMovesLeft(board))
+}
+
+func TestAreMovesLeftReturnsTrueForStaggeredBoardWithOneEmpty(t *testing.T) {
+	board := NewBoardFromGrid([][]int64{
+		{0, 4, 2, 4},
+		{4, 2, 4, 2},
+		{2, 4, 2, 4},
+		{4, 2, 4, 2},
+	})
+
+	assert.True(t, AreMovesLeft(board))
 }
 
 func TestMoveRightWithEmptyReturnsEmptyAndError(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveRight(initialBoard)
 	assert.Equal(t, initialBoard, actualBoard)
@@ -32,19 +146,19 @@ func TestMoveRightWithEmptyReturnsEmptyAndError(t *testing.T) {
 }
 
 func TestMoveRightOneTwo(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{2, 0, 0, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 2},
-	}
+	})
 
 	actualBoard, score, err := MoveRight(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -53,19 +167,19 @@ func TestMoveRightOneTwo(t *testing.T) {
 }
 
 func TestMoveRightTwoTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{2, 2, 0, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 4},
-	}
+	})
 
 	actualBoard, score, err := MoveRight(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -74,19 +188,19 @@ func TestMoveRightTwoTwos(t *testing.T) {
 }
 
 func TestMoveRightThreeTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 2, 2, 2},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 2, 4},
-	}
+	})
 
 	actualBoard, score, err := MoveRight(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -95,19 +209,19 @@ func TestMoveRightThreeTwos(t *testing.T) {
 }
 
 func TestMoveRightFourTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{2, 2, 2, 2},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 4, 4},
-	}
+	})
 
 	actualBoard, score, err := MoveRight(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -116,19 +230,19 @@ func TestMoveRightFourTwos(t *testing.T) {
 }
 
 func TestMoveRightMultipleRows(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{2, 128, 0, 0},
 		{4, 0, 0, 4},
 		{2, 0, 8, 8},
 		{2, 2, 2, 32},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 2, 128},
 		{0, 0, 0, 8},
 		{0, 0, 2, 16},
 		{0, 2, 4, 32},
-	}
+	})
 
 	actualBoard, score, err := MoveRight(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -137,12 +251,12 @@ func TestMoveRightMultipleRows(t *testing.T) {
 }
 
 func TestMoveRightWithNoChangesReturnsError(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 2, 4},
 		{0, 0, 4, 8},
 		{0, 16, 2, 32},
-	}
+	})
 
 	actualBoard, score, err := MoveRight(initialBoard)
 	assert.Equal(t, initialBoard, actualBoard)
@@ -151,12 +265,12 @@ func TestMoveRightWithNoChangesReturnsError(t *testing.T) {
 }
 
 func TestMoveLeftWithEmptyReturnsEmptyAndError(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveLeft(initialBoard)
 	assert.Equal(t, initialBoard, actualBoard)
@@ -165,19 +279,19 @@ func TestMoveLeftWithEmptyReturnsEmptyAndError(t *testing.T) {
 }
 
 func TestMoveLeftOneTwo(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 2},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{2, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveLeft(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -186,19 +300,19 @@ func TestMoveLeftOneTwo(t *testing.T) {
 }
 
 func TestMoveLeftTwoTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 2, 2},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{4, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveLeft(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -207,19 +321,19 @@ func TestMoveLeftTwoTwos(t *testing.T) {
 }
 
 func TestMoveLeftThreeTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{2, 2, 2, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{4, 2, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveLeft(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -228,19 +342,19 @@ func TestMoveLeftThreeTwos(t *testing.T) {
 }
 
 func TestMoveLeftFourTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{2, 2, 2, 2},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{4, 4, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveLeft(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -249,19 +363,19 @@ func TestMoveLeftFourTwos(t *testing.T) {
 }
 
 func TestMoveLeftMultipleRows(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{2, 128, 0, 0},
 		{4, 0, 0, 4},
 		{2, 0, 8, 8},
 		{2, 2, 0, 16},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{2, 128, 0, 0},
 		{8, 0, 0, 0},
 		{2, 16, 0, 0},
 		{4, 16, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveLeft(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -270,12 +384,12 @@ func TestMoveLeftMultipleRows(t *testing.T) {
 }
 
 func TestMoveLeftWithNoChangesReturnsError(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{2, 4, 0, 0},
 		{2, 8, 4, 8},
 		{2, 16, 2, 32},
-	}
+	})
 
 	actualBoard, score, err := MoveLeft(initialBoard)
 	assert.Equal(t, initialBoard, actualBoard)
@@ -284,12 +398,12 @@ func TestMoveLeftWithNoChangesReturnsError(t *testing.T) {
 }
 
 func TestMoveDownWithEmptyReturnsEmptyAndError(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveDown(initialBoard)
 	assert.Equal(t, initialBoard, actualBoard)
@@ -298,19 +412,19 @@ func TestMoveDownWithEmptyReturnsEmptyAndError(t *testing.T) {
 }
 
 func TestMoveDownOneTwo(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{2, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{2, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveDown(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -319,19 +433,19 @@ func TestMoveDownOneTwo(t *testing.T) {
 }
 
 func TestMoveDownTwoTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{2, 0, 0, 0},
 		{2, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{4, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveDown(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -340,19 +454,19 @@ func TestMoveDownTwoTwos(t *testing.T) {
 }
 
 func TestMoveDownThreeTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 2, 0},
 		{0, 0, 2, 0},
 		{0, 0, 2, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 2, 0},
 		{0, 0, 4, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveDown(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -361,19 +475,19 @@ func TestMoveDownThreeTwos(t *testing.T) {
 }
 
 func TestMoveDownFourTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 2, 0},
 		{0, 0, 2, 0},
 		{0, 0, 2, 0},
 		{0, 0, 2, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 4, 0},
 		{0, 0, 4, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveDown(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -382,19 +496,19 @@ func TestMoveDownFourTwos(t *testing.T) {
 }
 
 func TestMoveDownMultipleRows(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{2, 128, 0, 0},
 		{4, 0, 8, 4},
 		{2, 0, 8, 8},
 		{2, 2, 0, 16},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{2, 0, 0, 4},
 		{4, 128, 0, 8},
 		{4, 2, 16, 16},
-	}
+	})
 
 	actualBoard, score, err := MoveDown(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -403,12 +517,12 @@ func TestMoveDownMultipleRows(t *testing.T) {
 }
 
 func TestMoveDownWithNoChangesReturnsError(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{2, 4, 0, 0},
 		{4, 8, 4, 8},
 		{2, 16, 2, 32},
-	}
+	})
 
 	actualBoard, score, err := MoveDown(initialBoard)
 	assert.Equal(t, initialBoard, actualBoard)
@@ -417,12 +531,12 @@ func TestMoveDownWithNoChangesReturnsError(t *testing.T) {
 }
 
 func TestMoveUpWithEmptyReturnsEmptyAndError(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveUp(initialBoard)
 	assert.Equal(t, initialBoard, actualBoard)
@@ -431,19 +545,19 @@ func TestMoveUpWithEmptyReturnsEmptyAndError(t *testing.T) {
 }
 
 func TestMoveUpOneTwo(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{2, 0, 0, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{2, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveUp(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -452,19 +566,19 @@ func TestMoveUpOneTwo(t *testing.T) {
 }
 
 func TestMoveUpTwoTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{2, 0, 0, 0},
 		{2, 0, 0, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{4, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveUp(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -473,19 +587,19 @@ func TestMoveUpTwoTwos(t *testing.T) {
 }
 
 func TestMoveUpThreeTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 0, 0},
 		{0, 0, 2, 0},
 		{0, 0, 2, 0},
 		{0, 0, 2, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 4, 0},
 		{0, 0, 2, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveUp(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -494,19 +608,19 @@ func TestMoveUpThreeTwos(t *testing.T) {
 }
 
 func TestMoveUpFourTwos(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 2, 0},
 		{0, 0, 2, 0},
 		{0, 0, 2, 0},
 		{0, 0, 2, 0},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{0, 0, 4, 0},
 		{0, 0, 4, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveUp(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -515,19 +629,19 @@ func TestMoveUpFourTwos(t *testing.T) {
 }
 
 func TestMoveUpMultipleRows(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{2, 128, 0, 0},
 		{4, 0, 8, 4},
 		{2, 0, 8, 8},
 		{2, 2, 0, 16},
-	}
+	})
 
-	expectedBoard := [][]int64{
+	expectedBoard := NewBoardFromGrid([][]int64{
 		{2, 128, 16, 4},
 		{4, 2, 0, 8},
 		{4, 0, 0, 16},
 		{0, 0, 0, 0},
-	}
+	})
 
 	actualBoard, score, err := MoveUp(initialBoard)
 	assert.Equal(t, expectedBoard, actualBoard)
@@ -536,48 +650,15 @@ func TestMoveUpMultipleRows(t *testing.T) {
 }
 
 func TestMoveUpWithNoChangesReturnsError(t *testing.T) {
-	initialBoard := [][]int64{
+	initialBoard := NewBoardFromGrid([][]int64{
 		{4, 16, 4, 2},
 		{2, 8, 2, 4},
 		{4, 4, 0, 8},
 		{2, 0, 0, 32},
-	}
+	})
 
 	actualBoard, score, err := MoveUp(initialBoard)
 	assert.Equal(t, initialBoard, actualBoard)
 	assert.Equal(t, int64(0), score)
 	assert.NotNil(t, err)
-}
-
-func TestAreMovesLeftReturnsTrueForEmptyBoard(t *testing.T) {
-	board := [][]int64{
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-	}
-
-	assert.True(t, AreMovesLeft(board))
-}
-
-func TestAreMovesLeftReturnsFalseForFullStaggeredBoard(t *testing.T) {
-	board := [][]int64{
-		{2, 4, 2, 4},
-		{4, 2, 4, 2},
-		{2, 4, 2, 4},
-		{4, 2, 4, 2},
-	}
-
-	assert.False(t, AreMovesLeft(board))
-}
-
-func TestAreMovesLeftReturnsTrueForStaggeredBoardWithOneEmpty(t *testing.T) {
-	board := [][]int64{
-		{0, 4, 2, 4},
-		{4, 2, 4, 2},
-		{2, 4, 2, 4},
-		{4, 2, 4, 2},
-	}
-
-	assert.True(t, AreMovesLeft(board))
 }
