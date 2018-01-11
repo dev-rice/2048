@@ -18,3 +18,12 @@ Score from board state:
     8 and 8 (thrice)
     4 and 4 (fourice)
 
+## Move time stats
+Before
+    Sample 1 (`2048_random_stats_1.json`)
+        Average # of moves = 118.32
+        Average game time  = 0.0010 seconds
+
+    Sample 2 (`2048_random_stats_2.json`)
+        Average # of moves = 118.30
+        Average game time  = 0.0014 seconds

@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/donutmonger/2048/actions"
+	"github.com/donutmonger/2048/board"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -42,7 +43,7 @@ func newMockPlayer() mockPlayer {
 	}
 }
 
-func (m mockPlayer) GetAction(b [][]int64) actions.Action {
+func (m mockPlayer) GetAction(b int64) actions.Action {
 	var a actions.Action
 	for {
 		select {
@@ -85,15 +86,15 @@ func TestPlayWithOneMove(t *testing.T) {
 	printer := &mockPrinter{}
 
 	testGame := Game{
-		NewBoardFunc: func() [][]int64 {
-			return [][]int64{
+		NewBoardFunc: func() int64 {
+			return board.NewBoardFromGrid([][]int64{
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 2},
-			}
+			})
 		},
-		placeNewTileFunc: func(b [][]int64) [][]int64 {
+		placeNewTileFunc: func(b int64) int64 {
 			return b
 		},
 	}
@@ -123,15 +124,15 @@ func TestPlayWithOneMoveWithScore(t *testing.T) {
 	printer := &mockPrinter{}
 
 	testGame := Game{
-		NewBoardFunc: func() [][]int64 {
-			return [][]int64{
+		NewBoardFunc: func() int64 {
+			return board.NewBoardFromGrid([][]int64{
 				{0, 0, 0, 0},
 				{0, 32, 0, 2},
 				{0, 32, 0, 2},
 				{0, 0, 0, 0},
-			}
+			})
 		},
-		placeNewTileFunc: func(b [][]int64) [][]int64 {
+		placeNewTileFunc: func(b int64) int64 {
 			return b
 		},
 	}
@@ -161,15 +162,15 @@ func TestPlayWithFiveMoves(t *testing.T) {
 	printer := &mockPrinter{}
 
 	testGame := Game{
-		NewBoardFunc: func() [][]int64 {
-			return [][]int64{
+		NewBoardFunc: func() int64 {
+			return board.NewBoardFromGrid([][]int64{
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 0},
 				{0, 0, 0, 2},
-			}
+			})
 		},
-		placeNewTileFunc: func(b [][]int64) [][]int64 {
+		placeNewTileFunc: func(b int64) int64 {
 			return b
 		},
 	}
